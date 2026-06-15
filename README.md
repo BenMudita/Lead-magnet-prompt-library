@@ -36,7 +36,7 @@ npm run smoke
 
 - Guest: clear cookies or use a fresh browser.
 - Free user: visit `/promptlibrary/signup` and submit the demo form.
-- Pro user: visit `/promptlibrary/pricing` and click `Unlock Pro`.
+- Pro user: visit `/promptlibrary/pricing` and click `Unlock Pro`. Demo checkout is disabled in production unless `ENABLE_DEMO_CHECKOUT=true`.
 - Admin: visit `/admin/prompts` and use the admin demo form. The admin demo endpoint is disabled when `NODE_ENV=production`; production admin roles should come from the auth/database provider.
 
 ## Production provider keys needed
