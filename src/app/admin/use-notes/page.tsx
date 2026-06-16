@@ -1,18 +1,29 @@
 import { AdminUseNoteList } from "@/components/admin-use-note-list";
 import { SessionForm } from "@/components/session-form";
+import { isSupabaseAuthEnabled } from "@/lib/env";
 import { getSession, isAdminRole } from "@/lib/session";
 import { getUseNotes } from "@/lib/store";
 
 export default async function AdminUseNotesPage() {
   const session = await getSession();
   if (!isAdminRole(session.role)) {
+    const supabaseAuth = isSupabaseAuthEnabled();
     return (
       <section className="auth-page">
         <div>
           <p className="eyebrow">Moderator required</p>
-          <h2>Use the admin demo session to moderate use notes.</h2>
+          <h2>
+            {supabaseAuth
+              ? "Sign in with an admin account to moderate use notes."
+              : "Use the admin demo session to moderate use notes."}
+          </h2>
         </div>
-        <SessionForm mode="login" admin defaultEmail="admin@muditastudios.com" />
+        <SessionForm
+          mode="login"
+          admin={!supabaseAuth}
+          defaultEmail="admin@muditastudios.com"
+          redirectTo="/admin/use-notes"
+        />
       </section>
     );
   }
@@ -31,4 +42,3 @@ export default async function AdminUseNotesPage() {
     </section>
   );
 }
-

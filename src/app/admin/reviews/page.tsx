@@ -1,17 +1,28 @@
 import { SessionForm } from "@/components/session-form";
+import { isSupabaseAuthEnabled } from "@/lib/env";
 import { getSession, isAdminRole } from "@/lib/session";
 import { getPrompts, getTags } from "@/lib/store";
 
 export default async function AdminReviewsPage() {
   const session = await getSession();
   if (!isAdminRole(session.role)) {
+    const supabaseAuth = isSupabaseAuthEnabled();
     return (
       <section className="auth-page">
         <div>
           <p className="eyebrow">Admin required</p>
-          <h2>Use the admin demo session to review AI tags and explanations.</h2>
+          <h2>
+            {supabaseAuth
+              ? "Sign in with an admin account to review AI tags and explanations."
+              : "Use the admin demo session to review AI tags and explanations."}
+          </h2>
         </div>
-        <SessionForm mode="login" admin defaultEmail="admin@muditastudios.com" />
+        <SessionForm
+          mode="login"
+          admin={!supabaseAuth}
+          defaultEmail="admin@muditastudios.com"
+          redirectTo="/admin/reviews"
+        />
       </section>
     );
   }
@@ -52,4 +63,3 @@ export default async function AdminReviewsPage() {
     </section>
   );
 }
-

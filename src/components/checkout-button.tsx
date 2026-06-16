@@ -14,12 +14,21 @@ export function CheckoutButton({ redirect = "/promptlibrary" }: { redirect?: str
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ redirect }),
     });
+    const payload = await response.json().catch(() => ({}));
     if (response.ok) {
-      setMessage("Demo checkout complete. Pro access unlocked.");
-      router.push(redirect);
+      if (payload.redirectUrl) {
+        window.location.href = payload.redirectUrl;
+        return;
+      }
+      setMessage("Checkout complete. Pro access unlocked.");
+      router.push(payload.redirect ?? redirect);
       router.refresh();
     } else {
-      setMessage("Checkout could not start. Stripe keys are needed for production checkout.");
+      if (payload.redirectUrl) {
+        router.push(payload.redirectUrl);
+        return;
+      }
+      setMessage(payload.message ?? "Checkout could not start. Stripe keys are needed for production checkout.");
     }
   }
 

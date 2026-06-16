@@ -23,6 +23,8 @@
 # misc
 .DS_Store
 *.pem
+.agents/
+skills-lock.json
 
 # debug
 npm-debug.log*
@@ -40,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local Netlify folder
+.netlify

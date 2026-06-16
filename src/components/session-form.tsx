@@ -26,13 +26,18 @@ export function SessionForm({
     const response = await fetch(admin ? "/api/session/admin-demo" : "/api/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(admin ? { email } : { accountStatus, role, email }),
+      body: JSON.stringify(admin ? { email } : { accountStatus, role, email, redirectTo }),
     });
+    const payload = await response.json().catch(() => ({}));
     if (response.ok) {
+      if (payload.pendingConfirmation) {
+        setMessage(payload.message ?? "Check your email for the sign-in link.");
+        return;
+      }
       router.push(redirectTo);
       router.refresh();
     } else {
-      setMessage(`${mode === "signup" ? "Signup" : "Login"} failed.`);
+      setMessage(payload.message ?? `${mode === "signup" ? "Signup" : "Login"} failed.`);
     }
   }
 

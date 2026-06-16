@@ -1,17 +1,28 @@
 import { SessionForm } from "@/components/session-form";
+import { isSupabaseAuthEnabled } from "@/lib/env";
 import { getSession, isAdminRole } from "@/lib/session";
 import { getAnalyticsSummary } from "@/lib/store";
 
 export default async function AdminAnalyticsPage() {
   const session = await getSession();
   if (!isAdminRole(session.role)) {
+    const supabaseAuth = isSupabaseAuthEnabled();
     return (
       <section className="auth-page">
         <div>
           <p className="eyebrow">Analyst required</p>
-          <h2>Use the admin demo session to view analytics.</h2>
+          <h2>
+            {supabaseAuth
+              ? "Sign in with an admin account to view analytics."
+              : "Use the admin demo session to view analytics."}
+          </h2>
         </div>
-        <SessionForm mode="login" admin defaultEmail="admin@muditastudios.com" />
+        <SessionForm
+          mode="login"
+          admin={!supabaseAuth}
+          defaultEmail="admin@muditastudios.com"
+          redirectTo="/admin/analytics"
+        />
       </section>
     );
   }
@@ -71,4 +82,3 @@ export default async function AdminAnalyticsPage() {
     </section>
   );
 }
-

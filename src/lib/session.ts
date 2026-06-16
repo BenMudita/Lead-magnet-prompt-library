@@ -1,4 +1,7 @@
 import { cookies } from "next/headers";
+import { isSupabaseAuthEnabled } from "./env";
+import { getSupabaseProfile, sessionFromSupabaseUser } from "./supabase/profiles";
+import { createSupabaseServerClient } from "./supabase/server";
 import type { AccountStatus, Session, UserRole } from "./types";
 
 const STATUS_COOKIE = "mudita_status";
@@ -30,11 +33,30 @@ export const isAdminRole = (role: UserRole) =>
 
 export async function getSession(): Promise<Session> {
   const cookieStore = await cookies();
+  const anonymousId = cookieStore.get(ANON_COOKIE)?.value ?? "anon_preview";
+
+  if (isSupabaseAuthEnabled()) {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      const profile = await getSupabaseProfile(user.id);
+      return sessionFromSupabaseUser({ user, profile, anonymousId });
+    }
+
+    return {
+      accountStatus: "guest",
+      role: "visitor",
+      anonymousId,
+    };
+  }
+
   const accountStatus = validAccountStatus(cookieStore.get(STATUS_COOKIE)?.value);
   const role = validRole(cookieStore.get(ROLE_COOKIE)?.value);
   const email = cookieStore.get(EMAIL_COOKIE)?.value;
   const userId = cookieStore.get(USER_COOKIE)?.value;
-  const anonymousId = cookieStore.get(ANON_COOKIE)?.value ?? "anon_preview";
 
   return {
     accountStatus,
@@ -54,6 +76,10 @@ export async function setSession({
   role?: UserRole;
   email?: string;
 }) {
+  if (isSupabaseAuthEnabled()) {
+    throw new Error("Demo sessions are disabled when AUTH_PROVIDER=supabase.");
+  }
+
   const cookieStore = await cookies();
   const anonymousId =
     cookieStore.get(ANON_COOKIE)?.value ?? `anon_${Math.random().toString(36).slice(2, 12)}`;
@@ -69,9 +95,13 @@ export async function setSession({
 
 export async function clearSession() {
   const cookieStore = await cookies();
+  if (isSupabaseAuthEnabled()) {
+    const supabase = await createSupabaseServerClient();
+    await supabase.auth.signOut();
+  }
+
   cookieStore.delete(STATUS_COOKIE);
   cookieStore.delete(ROLE_COOKIE);
   cookieStore.delete(EMAIL_COOKIE);
   cookieStore.delete(USER_COOKIE);
 }
-

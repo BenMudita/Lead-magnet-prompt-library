@@ -1,5 +1,21 @@
+import fs from "node:fs";
+
+function loadEnvFile(path) {
+  if (!fs.existsSync(path)) return;
+
+  for (const line of fs.readFileSync(path, "utf8").split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
+    const [key, ...rest] = trimmed.split("=");
+    if (!process.env[key]) process.env[key] = rest.join("=").replace(/^["']|["']$/g, "");
+  }
+}
+
+loadEnvFile(".env.local");
+
 const base = process.env.SMOKE_BASE_URL ?? "http://localhost:3000";
 let cookie = "";
+const authProvider = process.env.AUTH_PROVIDER ?? "demo";
 
 function captureCookies(response) {
   const raw = response.headers.getSetCookie
@@ -52,6 +68,13 @@ assert(
 
 result = await request("/api/promptlibrary/prompts/prompt_marketing_3/copy", { method: "POST" });
 assert(result.response.status === 402, "guest premium copy blocked", result.response.status);
+
+if (authProvider === "supabase") {
+  result = await request("/api/admin/prompts");
+  assert(result.response.status === 403, "admin blocked for guest");
+  console.log("SKIP demo session checks because AUTH_PROVIDER=supabase");
+  process.exit(0);
+}
 
 result = await request("/api/session", {
   method: "POST",
