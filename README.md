@@ -17,10 +17,16 @@ A Next.js implementation of the Mudita Prompt Library PRD. The app is product-fi
 
 ```bash
 npm install
-npm run dev -- --port 3000
+npm run local
 ```
 
 Open [http://localhost:3000/promptlibrary](http://localhost:3000/promptlibrary).
+
+If port 3000 is already busy, run:
+
+```bash
+npm run dev -- --port 3001
+```
 
 Run checks:
 
