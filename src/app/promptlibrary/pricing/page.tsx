@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Sparkles } from "lucide-react";
-import { CheckoutButton } from "@/components/checkout-button";
+import { ArrowRight, CheckCircle2, Sparkles } from "lucide-react";
 import { MuditaHeader } from "@/components/mudita-header";
 import { getSession } from "@/lib/session";
 import { recordAnalyticsEvent } from "@/lib/store";
@@ -13,11 +12,13 @@ export default async function PricingPage({ searchParams }: Props) {
   const params = await searchParams;
   const session = await getSession();
   recordAnalyticsEvent({
-    eventName: "paywall_viewed",
+    eventName: "free_access_page_viewed",
     anonymousId: session.anonymousId,
     userId: session.userId,
     properties: { accountStatus: session.accountStatus },
   });
+  const redirect = params.redirect?.startsWith("/") ? params.redirect : "/promptlibrary";
+  const signupHref = `/promptlibrary/signup?redirect=${encodeURIComponent(redirect)}`;
 
   return (
     <main>
@@ -26,33 +27,33 @@ export default async function PricingPage({ searchParams }: Props) {
         <div>
           <p className="eyebrow">
             <Sparkles className="icon-xs" aria-hidden="true" />
-            Founding member offer
+            Free account
           </p>
-          <h1>Unlock the full Mudita Prompt Library</h1>
-          <p>Full library, full search, tested prompts, practical use notes, and new curated additions as content operations come online.</p>
+          <h1>The full Mudita Prompt Library is free to use.</h1>
+          <p>Enter your email once, create an account, and copy any prompt. No checkout, no subscription, no payment wall.</p>
         </div>
         <div className="price-card">
-          <span className="price-kicker">First 500 members</span>
-          <strong>$49/year</strong>
-          <span>$4.08/month equivalent, billed annually</span>
-          <CheckoutButton redirect={params.redirect ?? "/promptlibrary"} />
-          <Link href="/promptlibrary/signup" className="text-link">
-            Start with a free account
+          <span className="price-kicker">Library access</span>
+          <strong>Free</strong>
+          <span>All prompt bodies unlock after email signup.</span>
+          <Link href={session.accountStatus === "guest" ? signupHref : redirect} className="primary-action fit">
+            {session.accountStatus === "guest" ? "Create free account" : "Return to library"}
+            <ArrowRight className="icon-sm" aria-hidden="true" />
           </Link>
         </div>
       </section>
       <section className="page-section" aria-labelledby="unlock-heading">
         <div className="section-heading">
-          <h2 id="unlock-heading">What Pro unlocks</h2>
+          <h2 id="unlock-heading">What your free account unlocks</h2>
         </div>
         <ul className="feature-list">
           {[
             "All 108 launch prompts and future weekly additions",
-            "Full premium prompt bodies and one-click copy",
+            "Full prompt bodies and one-click copy",
             "Send-to-ChatGPT and Send-to-Claude copy/open fallback",
             "Mudita-tested prompts and practical use notes",
             "Full search across categories, tags, explanation, and body",
-            "Simple annual plan ready to connect to Stripe Checkout",
+            "A simple email login so your access follows you",
           ].map((item) => (
             <li key={item}>
               <CheckCircle2 className="icon-sm" aria-hidden="true" />

@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { Clipboard, LockKeyhole, Sparkles, ThumbsUp } from "lucide-react";
 import type { PublicPrompt } from "@/lib/types";
 import { useEffect, useState } from "react";
 
 export function PromptCard({ prompt }: { prompt: PublicPrompt }) {
   const [status, setStatus] = useState<"idle" | "copied" | "failed" | "locked">("idle");
+  const signupHref = `/promptlibrary/signup?redirect=${encodeURIComponent(`/promptlibrary/p/${prompt.slug}`)}`;
 
   useEffect(() => {
     void fetch("/api/analytics/events", {
@@ -33,15 +33,19 @@ export function PromptCard({ prompt }: { prompt: PublicPrompt }) {
   async function copyPrompt() {
     setStatus("idle");
     if (prompt.isLocked) {
-      window.location.href = `/promptlibrary/pricing?redirect=/promptlibrary/p/${prompt.slug}`;
+      window.location.href = signupHref;
       return;
     }
     const response = await fetch(`/api/promptlibrary/prompts/${prompt.id}/copy`, {
       method: "POST",
     });
-    const payload = (await response.json()) as { body?: string; message?: string };
+    const payload = (await response.json()) as { body?: string; message?: string; redirectUrl?: string };
 
     if (!response.ok || !payload.body) {
+      if (payload.redirectUrl) {
+        window.location.href = payload.redirectUrl;
+        return;
+      }
       setStatus(response.status === 402 || response.status === 401 ? "locked" : "failed");
       return;
     }
@@ -55,15 +59,15 @@ export function PromptCard({ prompt }: { prompt: PublicPrompt }) {
   }
 
   return (
-    <article className={prompt.isLocked ? "prompt-card locked" : "prompt-card"}>
+    <article className={`prompt-card accent-${prompt.category.accent}${prompt.isLocked ? " locked" : ""}`}>
       <div className="card-topline">
         <span className="category-pill">{prompt.category.name}</span>
         {prompt.isMuditaTested ? (
           <span className="tested-badge" title="Mudita-tested means a human or approved agent reviewed the output.">
-            <Sparkles className="icon-xs" aria-hidden="true" />
             Tested
           </span>
         ) : null}
+        {prompt.isLocked ? <span className="locked-badge">Sign up</span> : null}
       </div>
       <Link href={`/promptlibrary/p/${prompt.slug}`} className="card-title" onClick={trackClick}>
         {prompt.title}
@@ -92,16 +96,12 @@ export function PromptCard({ prompt }: { prompt: PublicPrompt }) {
         {prompt.tags.length > 4 ? <span className="tag-more">+{prompt.tags.length - 4}</span> : null}
       </div>
       <div className="card-metrics">
-        <span>
-          <ThumbsUp className="icon-xs" aria-hidden="true" />
-          {Math.round(prompt.helpfulRatio * 100)}% helpful
-        </span>
+        <span>{Math.round(prompt.helpfulRatio * 100)}% helpful</span>
         <span>{prompt.metric.copyCount + prompt.metric.sendChatgptCount + prompt.metric.sendClaudeCount} uses</span>
       </div>
       <div className="card-actions">
         <button type="button" onClick={copyPrompt} className="icon-button text-button" aria-label={`Copy ${prompt.title}`}>
-          {prompt.isLocked ? <LockKeyhole className="icon-sm" /> : <Clipboard className="icon-sm" />}
-          {prompt.isLocked ? "Locked" : "Copy"}
+          {prompt.isLocked ? "Sign up" : "Copy"}
         </button>
         <Link className="text-link" href={`/promptlibrary/p/${prompt.slug}`} onClick={trackClick}>
           Open

@@ -13,12 +13,12 @@ export default async function AccountPage() {
           <p className="eyebrow">Account</p>
           <h1>{session.email ?? "Preview visitor"}</h1>
           <p>
-            Subscription status: <strong>{session.accountStatus}</strong>
+            Library access: <strong>{session.accountStatus === "guest" ? "preview" : "full prompt access"}</strong>
           </p>
         </div>
         <div className="account-actions">
-          <Link href="/promptlibrary/pricing" className="primary-action fit">
-            Billing setup
+          <Link href="/promptlibrary/search" className="primary-action fit">
+            Use the library
           </Link>
           <Link href="/admin/prompts" className="secondary-action">
             Admin demo

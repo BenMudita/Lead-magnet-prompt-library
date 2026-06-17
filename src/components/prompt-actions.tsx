@@ -13,6 +13,7 @@ export function PromptActions({
   isLocked: boolean;
 }) {
   const [message, setMessage] = useState("");
+  const signupHref = `/promptlibrary/signup?redirect=${encodeURIComponent(`/promptlibrary/p/${promptSlug}`)}`;
 
   async function loadPromptBody(eventName: "copy" | "chatgpt" | "claude") {
     const response =
@@ -24,8 +25,12 @@ export function PromptActions({
             body: JSON.stringify({ provider: eventName }),
           });
 
-    const payload = (await response.json()) as { body?: string; message?: string; url?: string };
+    const payload = (await response.json()) as { body?: string; message?: string; redirectUrl?: string; url?: string };
     if (!response.ok || !payload.body) {
+      if (payload.redirectUrl) {
+        window.location.href = payload.redirectUrl;
+        return undefined;
+      }
       setMessage(payload.message ?? "This prompt is locked.");
       return undefined;
     }
@@ -34,7 +39,7 @@ export function PromptActions({
 
   async function copyPrompt() {
     if (isLocked) {
-      window.location.href = `/promptlibrary/pricing?redirect=/promptlibrary/p/${promptSlug}`;
+      window.location.href = signupHref;
       return;
     }
     const body = await loadPromptBody("copy");
@@ -49,7 +54,7 @@ export function PromptActions({
 
   async function sendTo(provider: "chatgpt" | "claude") {
     if (isLocked) {
-      window.location.href = `/promptlibrary/pricing?redirect=/promptlibrary/p/${promptSlug}`;
+      window.location.href = signupHref;
       return;
     }
     const body = await loadPromptBody(provider);
@@ -79,7 +84,7 @@ export function PromptActions({
     <div className="action-group">
       <button type="button" onClick={copyPrompt} className="primary-action" aria-label="Copy prompt">
         <Clipboard className="icon-sm" aria-hidden="true" />
-        {isLocked ? "Unlock prompt" : "Copy prompt"}
+        {isLocked ? "Create free account" : "Copy prompt"}
       </button>
       <button type="button" onClick={() => sendTo("chatgpt")} className="secondary-action" aria-label="Send prompt to ChatGPT">
         <ExternalLink className="icon-sm" aria-hidden="true" />

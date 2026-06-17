@@ -17,7 +17,7 @@ export default async function SignupPage({ searchParams }: Props) {
         <div>
           <p className="eyebrow">Free account</p>
           <h1>Create your Mudita account</h1>
-          <p>Use free sample prompts now. Upgrade when you are ready for the full library.</p>
+          <p>Enter your email once to unlock the full prompt library. No payment required.</p>
           <Link href="/promptlibrary/login" className="text-link">
             Already have an account?
           </Link>
