@@ -280,36 +280,6 @@ main {
   font-weight: 800;
 }
 
-.library-home-hero {
-  padding-block: clamp(22px, 3.5vw, 38px) 18px;
-}
-
-.library-home-hero .hero-copy h1 {
-  max-width: 720px;
-  font-size: clamp(2.35rem, 4.15vw, 3.85rem);
-  line-height: 1;
-}
-
-.library-home-hero .hero-copy p:not(.eyebrow) {
-  max-width: 790px;
-  margin-top: 16px;
-  font-size: clamp(1.02rem, 1.45vw, 1.2rem);
-  line-height: 1.5;
-}
-
-.hero-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 18px;
-}
-
-.library-search-band {
-  scroll-margin-top: 120px;
-  gap: 22px;
-  padding-block: 16px;
-}
-
 .eyebrow {
   display: flex;
   align-items: center;
@@ -573,6 +543,7 @@ main {
 
 .library-filter-section {
   scroll-margin-top: 118px;
+  padding-top: clamp(28px, 4vw, 46px);
   padding-bottom: 18px;
 }
 
@@ -586,6 +557,27 @@ main {
   justify-content: space-between;
   gap: 18px;
   margin-bottom: 20px;
+}
+
+.library-results-heading {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.42fr) minmax(360px, 1fr);
+  align-items: end;
+  gap: 18px 32px;
+}
+
+.library-heading-actions {
+  display: grid;
+  gap: 10px;
+  scroll-margin-top: 118px;
+}
+
+.library-heading-actions .search-form {
+  margin: 0;
+}
+
+.library-heading-actions .text-link {
+  justify-self: end;
 }
 
 .text-link {
@@ -1762,6 +1754,14 @@ button.chip {
 
   .library-filter-panel {
     grid-template-columns: 1fr;
+  }
+
+  .library-results-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .library-heading-actions .text-link {
+    justify-self: start;
   }
 
   .sort-links,

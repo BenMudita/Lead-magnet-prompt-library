@@ -82,41 +82,6 @@ export default async function PromptLibraryHome({ searchParams }: Props) {
   return (
     <main>
       <MuditaHeader />
-      <section className="product-hero library-home-hero">
-        <div className="hero-copy">
-          <p className="eyebrow">Mudita Prompt Library</p>
-          <h1>Pick a prompt and get straight to work.</h1>
-          <p>
-            Search, filter by industry or task, and open tested prompts you can copy into your AI tool. Some prompts ask for
-            your email before the full copy unlocks.
-          </p>
-          <div className="hero-actions">
-            <a href="#prompt-library" className="primary-action fit">
-              Go to prompt library
-              <ArrowRight className="icon-sm" aria-hidden="true" />
-            </a>
-            <Link href="/promptlibrary/signup" className="secondary-action fit">
-              Email access
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      <section className="search-band library-search-band" id="library-search" aria-label="Search prompt library">
-        <div>
-          <h2>Search if you know what you need</h2>
-          <p>Browsing by work area is the best starting point. Search is here when you have a phrase in mind.</p>
-        </div>
-        <SearchBar
-          initialQuery={q}
-          categorySlug={category}
-          label="Search prompts"
-          placeholder="Try email, hiring, budget, launch, onboarding..."
-          destination="/promptlibrary"
-          fragment="prompt-library"
-        />
-      </section>
-
       <section className="page-section library-filter-section" id="prompt-library" aria-labelledby="library-heading">
         <div className="section-heading library-results-heading">
           <div>
@@ -125,11 +90,21 @@ export default async function PromptLibraryHome({ searchParams }: Props) {
               {activeCategory ? `${activeCategory.name} prompts` : q ? `Results for "${q}"` : "All prompt library"}
             </h2>
           </div>
-          {Object.keys(currentParams).length ? (
-            <Link href="/promptlibrary#prompt-library" className="text-link">
-              Clear filters <ArrowRight className="icon-sm" aria-hidden="true" />
-            </Link>
-          ) : null}
+          <div className="library-heading-actions" id="library-search">
+            <SearchBar
+              initialQuery={q}
+              categorySlug={category}
+              label="Search prompts"
+              placeholder="Try email, hiring, budget, launch, onboarding..."
+              destination="/promptlibrary"
+              fragment="prompt-library"
+            />
+            {Object.keys(currentParams).length ? (
+              <Link href="/promptlibrary#prompt-library" className="text-link">
+                Clear filters <ArrowRight className="icon-sm" aria-hidden="true" />
+              </Link>
+            ) : null}
+          </div>
         </div>
 
         <div className="library-filter-panel" aria-label="Library filters">
