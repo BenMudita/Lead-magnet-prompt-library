@@ -8,12 +8,18 @@ export function SearchBar({
   initialQuery = "",
   categorySlug,
   placeholder = "Search prompts",
+  label = "Search prompts",
+  helperText,
   compact = false,
+  large = false,
 }: {
   initialQuery?: string;
   categorySlug?: string;
   placeholder?: string;
+  label?: string;
+  helperText?: string;
   compact?: boolean;
+  large?: boolean;
 }) {
   const [query, setQuery] = useState(initialQuery);
   const router = useRouter();
@@ -27,18 +33,23 @@ export function SearchBar({
   }
 
   return (
-    <form className={compact ? "search-form compact" : "search-form"} onSubmit={onSubmit}>
-      <Search className="search-icon" aria-hidden="true" />
-      <input
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder={placeholder}
-        aria-label={placeholder}
-      />
-      <button type="submit" aria-label="Search prompts">
-        Search
-      </button>
+    <form className={`${compact ? "search-form compact" : "search-form"}${large ? " large" : ""}`} onSubmit={onSubmit}>
+      <label className="search-label" htmlFor="prompt-search">
+        {label}
+      </label>
+      <div className="search-box">
+        <Search className="search-icon" aria-hidden="true" />
+        <input
+          id="prompt-search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder={placeholder}
+        />
+        <button type="submit" aria-label="Search prompts">
+          Search
+        </button>
+      </div>
+      {helperText ? <p className="search-helper">{helperText}</p> : null}
     </form>
   );
 }
-

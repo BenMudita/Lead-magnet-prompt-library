@@ -6,7 +6,7 @@ export function PromptGrid({ prompts }: { prompts: PublicPrompt[] }) {
     return (
       <div className="empty-state">
         <h2>No prompts found</h2>
-        <p>Try a broader search term, a different category, or one of the popular tags.</p>
+        <p>Try a broader task like email, planning, launch, or research.</p>
       </div>
     );
   }
@@ -19,4 +19,3 @@ export function PromptGrid({ prompts }: { prompts: PublicPrompt[] }) {
     </div>
   );
 }
-

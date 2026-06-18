@@ -48,7 +48,7 @@ export default async function PricingPage({ searchParams }: Props) {
         </div>
         <ul className="feature-list">
           {[
-            "All 108 launch prompts and future weekly additions",
+            "All 108 ready-to-use prompts and future weekly additions",
             "Full prompt bodies and one-click copy",
             "Send-to-ChatGPT and Send-to-Claude copy/open fallback",
             "Mudita-tested prompts and practical use notes",

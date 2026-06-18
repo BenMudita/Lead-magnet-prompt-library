@@ -35,8 +35,8 @@ export function FeedbackPanel({ promptId }: { promptId: string }) {
   return (
     <section className="feedback-panel" aria-labelledby="feedback-heading">
       <div>
-        <h2 id="feedback-heading">Did this work for you?</h2>
-        <p>Quick votes help Mudita surface the prompts that actually help beginners.</p>
+        <h2 id="feedback-heading">Used this prompt? Share how you used it.</h2>
+        <p>Quick votes and short notes help other people find prompts that actually work.</p>
       </div>
       <div className="vote-row">
         <button
@@ -59,17 +59,17 @@ export function FeedbackPanel({ promptId }: { promptId: string }) {
         </button>
       </div>
       <label className="field-label" htmlFor="use-note">
-        What did you use this for?
+        What did you use this prompt for?
       </label>
       <textarea
         id="use-note"
         value={note}
         onChange={(event) => setNote(event.target.value)}
         maxLength={280}
-        placeholder="Example: I used it to prepare a customer update before a meeting."
+        placeholder="Example: I used it to turn investor notes into a weekly update."
       />
       <button type="button" className="primary-action fit" onClick={submitNote} disabled={!note.trim()}>
-        Submit use note
+        Share how you used it
       </button>
       <p className="inline-status" aria-live="polite">
         {message}
@@ -77,4 +77,3 @@ export function FeedbackPanel({ promptId }: { promptId: string }) {
     </section>
   );
 }
-

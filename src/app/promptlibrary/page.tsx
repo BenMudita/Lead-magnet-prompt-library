@@ -1,21 +1,29 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, ThumbsUp } from "lucide-react";
+import { ArrowRight, Flame, MessageSquare, Sparkles } from "lucide-react";
 import { LibraryHero } from "@/components/library-hero";
 import { MuditaHeader } from "@/components/mudita-header";
-import { SearchBar } from "@/components/search-bar";
 import { PromptGrid } from "@/components/prompt-grid";
 import { CategoryIcon } from "@/components/category-icon";
-import { categoryStats, publicSearch } from "@/lib/library";
+import {
+  categoryStats,
+  communityActivity,
+  copiesThisWeek,
+  homepagePicks,
+  homepageRoleSlugs,
+  homepageTrending,
+} from "@/lib/library";
 import { getSession } from "@/lib/session";
 import { recordAnalyticsEvent } from "@/lib/store";
 
 export default async function PromptLibraryHome() {
   const session = await getSession();
   const stats = categoryStats();
-  const picks = publicSearch({ sort: "recommended" }, session)
-    .filter((prompt) => prompt.isFeatured)
-    .slice(0, 6);
-  const helpful = publicSearch({ sort: "helpful" }, session).slice(0, 6);
+  const roleStats = homepageRoleSlugs
+    .map((slug) => stats.find((item) => item.category.slug === slug))
+    .filter((item): item is (typeof stats)[number] => Boolean(item));
+  const trending = homepageTrending(session);
+  const picks = homepagePicks(session);
+  const activity = communityActivity(session);
   const totals = stats.reduce(
     (memo, item) => ({
       promptCount: memo.promptCount + item.promptCount,
@@ -36,26 +44,49 @@ export default async function PromptLibraryHome() {
       <MuditaHeader />
       <LibraryHero totalPrompts={totals.promptCount} testedPrompts={totals.testedCount} />
 
-      <section className="search-band" aria-labelledby="search-heading">
-        <div>
-          <h2 id="search-heading">Search if you know what you need</h2>
-          <p>Browsing by work area is the best starting point. Search is here when you have a phrase in mind.</p>
+      <section className="page-section" aria-labelledby="trending-heading">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow orange">
+              <Flame className="icon-xs" aria-hidden="true" />
+              Trending this week
+            </p>
+            <h2 id="trending-heading">Prompts people are copying right now.</h2>
+          </div>
+          <Link href="/promptlibrary/search?sort=used" className="text-link">
+            See all trending <ArrowRight className="icon-sm" aria-hidden="true" />
+          </Link>
         </div>
-        <SearchBar placeholder="Try email, hiring, budget, launch, onboarding" />
+        <div className="trending-grid">
+          {trending.map((prompt, index) => (
+            <Link href={`/promptlibrary/p/${prompt.slug}`} className="trending-card" key={prompt.id}>
+              <span className="trend-rank">#{index + 1}</span>
+              <span className="category-pill">{prompt.category.name}</span>
+              <strong>{prompt.title}</strong>
+              <span>{prompt.plainEnglishExplanation}</span>
+              <span className="trend-proof">
+                +{copiesThisWeek(prompt.metric)} copies this week · {Math.round(prompt.helpfulRatio * 100)}% helpful
+              </span>
+              <span className="text-link">
+                View prompt <ArrowRight className="icon-sm" aria-hidden="true" />
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
 
       <section className="page-section" aria-labelledby="category-heading">
         <div className="section-heading">
           <div>
-            <p className="eyebrow orange">Start here</p>
-            <h2 id="category-heading">Choose your industry or function</h2>
+            <p className="eyebrow">Browse by role</p>
+            <h2 id="category-heading">Choose your function or team.</h2>
           </div>
           <Link href="/promptlibrary/search" className="text-link">
             Browse all <ArrowRight className="icon-sm" aria-hidden="true" />
           </Link>
         </div>
         <div className="category-grid">
-          {stats.map(({ category, promptCount, testedCount }) => (
+          {roleStats.map(({ category, promptCount, testedCount }) => (
             <Link
               href={`/promptlibrary/${category.slug}`}
               className={`category-tile accent-${category.accent}`}
@@ -65,7 +96,7 @@ export default async function PromptLibraryHome() {
               <span className="tile-title">{category.name}</span>
               <span className="tile-copy">{category.description}</span>
               <span className="tile-meta">
-                {promptCount} prompts · free account · {testedCount} tested
+                {promptCount} prompts · {testedCount} tested · free account to copy
               </span>
             </Link>
           ))}
@@ -79,26 +110,36 @@ export default async function PromptLibraryHome() {
               <Sparkles className="icon-xs" aria-hidden="true" />
               Mudita Picks
             </p>
-            <h2 id="picks-heading">A few strong prompts to try first</h2>
+            <h2 id="picks-heading">Prompts our team recommends starting with.</h2>
           </div>
-          <Link href="/promptlibrary/signup" className="text-link">
-            Create a free account <ArrowRight className="icon-sm" aria-hidden="true" />
+          <Link href="/promptlibrary/search" className="text-link">
+            Explore the library <ArrowRight className="icon-sm" aria-hidden="true" />
           </Link>
         </div>
         <PromptGrid prompts={picks} />
       </section>
 
-      <section className="page-section" aria-labelledby="helpful-heading">
+      <section className="page-section" aria-labelledby="activity-heading">
         <div className="section-heading">
           <div>
             <p className="eyebrow">
-              <ThumbsUp className="icon-xs" aria-hidden="true" />
-              Recently helpful
+              <MessageSquare className="icon-xs" aria-hidden="true" />
+              Community activity
             </p>
-            <h2 id="helpful-heading">Prompts people keep using</h2>
+            <h2 id="activity-heading">See how people are using prompts in the real world.</h2>
           </div>
         </div>
-        <PromptGrid prompts={helpful} />
+        <div className="activity-grid">
+          {activity.map(({ note, prompt }) => (
+            <Link href={`/promptlibrary/p/${prompt.slug}`} className="activity-card" key={note.id}>
+              <span className="category-pill">{prompt.category.name}</span>
+              <p>{note.body}</p>
+              <span className="activity-meta">
+                Recently · {prompt.metric.copyCount} copies · {Math.round(prompt.helpfulRatio * 100)}% helpful
+              </span>
+            </Link>
+          ))}
+        </div>
       </section>
     </main>
   );

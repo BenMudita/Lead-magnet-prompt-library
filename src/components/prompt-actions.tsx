@@ -84,7 +84,7 @@ export function PromptActions({
     <div className="action-group">
       <button type="button" onClick={copyPrompt} className="primary-action" aria-label="Copy prompt">
         <Clipboard className="icon-sm" aria-hidden="true" />
-        {isLocked ? "Create free account" : "Copy prompt"}
+        {isLocked ? "Create free account to copy this prompt" : "Copy prompt"}
       </button>
       <button type="button" onClick={() => sendTo("chatgpt")} className="secondary-action" aria-label="Send prompt to ChatGPT">
         <ExternalLink className="icon-sm" aria-hidden="true" />

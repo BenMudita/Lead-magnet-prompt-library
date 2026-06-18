@@ -54,6 +54,7 @@ export function SessionForm({
       <button type="submit" className="primary-action">
         {admin ? "Enter admin demo" : mode === "signup" ? "Create free account" : "Email me a sign-in link"}
       </button>
+      {!admin && mode === "signup" ? <p className="form-reassurance">No payment required.</p> : null}
       {message ? <p className="inline-status">{message}</p> : null}
     </form>
   );
