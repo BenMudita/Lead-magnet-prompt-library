@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { EmailOtpType, User } from "@supabase/supabase-js";
 import { markEmailSignupConfirmed } from "@/lib/email-signups";
+import { absoluteAppUrl } from "@/lib/env";
 import { ensureSupabaseProfile } from "@/lib/supabase/profiles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -62,5 +63,5 @@ export async function handleSupabaseAuthCallback(request: Request) {
     console.error("Supabase auth callback failed", error);
   }
 
-  return NextResponse.redirect(new URL(safeRedirect, requestUrl.origin));
+  return NextResponse.redirect(new URL(safeRedirect, absoluteAppUrl(request.url)));
 }
