@@ -23,10 +23,25 @@ export function SessionForm({
     event.preventDefault();
     const accountStatus: AccountStatus = admin ? "pro" : "free";
     const role: UserRole = admin ? "admin" : "member";
+    const params = new URLSearchParams(window.location.search);
     const response = await fetch(admin ? "/api/session/admin-demo" : "/api/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(admin ? { email } : { accountStatus, role, email, redirectTo }),
+      body: JSON.stringify(
+        admin
+          ? { email }
+          : {
+              accountStatus,
+              role,
+              email,
+              redirectTo,
+              signupUrl: window.location.href,
+              referrer: document.referrer,
+              utmSource: params.get("utm_source") ?? undefined,
+              utmMedium: params.get("utm_medium") ?? undefined,
+              utmCampaign: params.get("utm_campaign") ?? undefined,
+            },
+      ),
     });
     const payload = await response.json().catch(() => ({}));
     if (response.ok) {

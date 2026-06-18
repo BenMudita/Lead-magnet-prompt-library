@@ -8,6 +8,7 @@ A Next.js implementation of the Mudita Prompt Library PRD. The app is product-fi
 - Admin routes: prompt list/edit, lead magnet entry list/edit, QA review queue, use-note moderation, analytics.
 - 108 seeded prompts across 9 categories, with 18 free samples and 27 Mudita-tested prompts.
 - Supabase-backed prompt persistence for production prompt create/edit/import, prompt metrics, votes, and moderated use notes.
+- Optional Twenty CRM lead sync for email-gated signups, including signup URL and UTM attribution when mapped to Twenty custom fields.
 - Backend-editable lead magnet directory entries at `/promptlibrary/directory`.
 - Server-side entitlement redaction for email-gated prompt bodies.
 - Copy, send-to-ChatGPT, send-to-Claude fallback, share, vote, and use-note APIs.
@@ -55,6 +56,7 @@ No keys are required for the local demo. For production, wire these before launc
 - Analytics: `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST`, or Segment equivalents.
 - AI admin assistance: `OPENAI_API_KEY` or the chosen LLM provider key.
 - Email: Resend/Postmark/provider API key for account/payment emails if auth/payment does not cover them.
+- Twenty CRM: `TWENTY_API_KEY` plus optional custom-field env vars from `docs/production-setup.md`.
 
 See `docs/production-schema.sql` for a Postgres/Supabase-oriented data model.
 
@@ -62,7 +64,7 @@ See `docs/production-schema.sql` for a Postgres/Supabase-oriented data model.
 
 The local app intentionally supports in-memory storage and cookie-based demo sessions so the prompt library can be exercised without external dependencies. In production, set `AUTH_PROVIDER=supabase` and `DATABASE_PROVIDER=supabase`, run `docs/production-schema.sql`, then run `npm run db:seed` to load the starter categories, tags, prompts, metrics, use notes, and lead magnet entries.
 
-Supabase Auth must have the production domain set as its Site URL and must allow `/auth/callback`. Email-gated signups are saved into `public.email_signups` when a magic link is requested and marked confirmed after the callback completes.
+Supabase Auth must have the production domain set as its Site URL and must allow `/auth/callback`. Email-gated signups are saved into `public.email_signups` when a magic link is requested, optionally synced to Twenty CRM, and marked confirmed after the callback completes.
 
 Admins manage live prompts at `/admin/prompts`. Use **Create draft** for one prompt, **Import prompts** for CSV or JSON uploads, then edit, tag, test, and publish from the prompt editor. Import rows support fields such as `title`, `body`, `categorySlug` or `category`, `tags`, `status`, `accessLevel`, `summary`, `sourceUrl`, and `sourceNotes`.
 

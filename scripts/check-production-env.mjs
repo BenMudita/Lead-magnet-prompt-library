@@ -82,6 +82,7 @@ console.log("Production provider selection");
 console.log(`AUTH_PROVIDER=${authProvider}`);
 console.log(`DATABASE_PROVIDER=${databaseProvider}`);
 console.log(`PAYMENTS_PROVIDER=${paymentsProvider}`);
+console.log(`TWENTY_SYNC=${process.env.TWENTY_SYNC_ENABLED === "false" ? "disabled" : process.env.TWENTY_API_KEY || process.env.TWENTY_WEBHOOK_URL ? "configured" : "not configured"}`);
 console.log("");
 
 if (!missing.length && !invalid.length) {

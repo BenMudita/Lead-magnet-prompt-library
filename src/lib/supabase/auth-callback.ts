@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import type { EmailOtpType, User } from "@supabase/supabase-js";
-import { markEmailSignupConfirmed } from "@/lib/email-signups";
+import { markEmailSignupConfirmed, updateEmailSignupCrmSync } from "@/lib/email-signups";
 import { absoluteAppUrl } from "@/lib/env";
 import { ensureSupabaseProfile } from "@/lib/supabase/profiles";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { syncTwentyLead } from "@/lib/twenty";
 
 const emailOtpTypes = new Set(["signup", "invite", "magiclink", "recovery", "email", "email_change"]);
 
@@ -44,11 +45,39 @@ async function syncConfirmedUser(user: User | null) {
   await ensureSupabaseProfile(user);
 
   if (user.email) {
-    await markEmailSignupConfirmed({
+    const signup = await markEmailSignupConfirmed({
       email: user.email,
       userId: user.id,
       source: "prompt_library_signup",
     });
+
+    try {
+      const crmResult = await syncTwentyLead({
+        email: user.email,
+        userId: user.id,
+        status: "confirmed",
+        source: signup?.source ?? "prompt_library_signup",
+        redirectTo: signup?.redirectTo,
+        signupUrl: signup?.signupUrl,
+        referrer: signup?.referrer,
+        utmSource: signup?.utmSource,
+        utmMedium: signup?.utmMedium,
+        utmCampaign: signup?.utmCampaign,
+        promptSlug: signup?.promptSlug,
+        existingContactId: signup?.crmContactId,
+      });
+
+      if (crmResult.synced || crmResult.error) {
+        await updateEmailSignupCrmSync({
+          email: user.email,
+          provider: crmResult.provider,
+          contactId: crmResult.contactId,
+          error: crmResult.error,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to sync confirmed Twenty lead", error);
+    }
   }
 }
 

@@ -26,6 +26,20 @@ export const appEnv = {
   stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   stripeFoundingMemberPriceId: process.env.STRIPE_PRICE_FOUNDING_MEMBER_YEARLY,
   enableDemoCheckout: process.env.ENABLE_DEMO_CHECKOUT === "true",
+  twentySyncEnabled: process.env.TWENTY_SYNC_ENABLED !== "false",
+  twentyApiBaseUrl: process.env.TWENTY_API_BASE_URL ?? "https://api.twenty.com",
+  twentyApiKey: process.env.TWENTY_API_KEY,
+  twentyPeopleObject: process.env.TWENTY_PEOPLE_OBJECT ?? "people",
+  twentyWebhookUrl: process.env.TWENTY_WEBHOOK_URL,
+  twentySignupStatusField: process.env.TWENTY_FIELD_SIGNUP_STATUS,
+  twentySignupUrlField: process.env.TWENTY_FIELD_SIGNUP_URL,
+  twentySignupSourceField: process.env.TWENTY_FIELD_SIGNUP_SOURCE,
+  twentyReferrerField: process.env.TWENTY_FIELD_REFERRER,
+  twentyUtmSourceField: process.env.TWENTY_FIELD_UTM_SOURCE,
+  twentyUtmMediumField: process.env.TWENTY_FIELD_UTM_MEDIUM,
+  twentyUtmCampaignField: process.env.TWENTY_FIELD_UTM_CAMPAIGN,
+  twentyPromptSlugField: process.env.TWENTY_FIELD_PROMPT_SLUG,
+  twentySupabaseUserIdField: process.env.TWENTY_FIELD_SUPABASE_USER_ID,
 };
 
 export const hasSupabasePublicConfig = () =>
@@ -39,6 +53,15 @@ export const hasStripeCheckoutConfig = () =>
 
 export const hasStripeWebhookConfig = () =>
   Boolean(appEnv.stripeSecretKey && appEnv.stripeWebhookSecret);
+
+export const hasTwentyApiConfig = () =>
+  Boolean(appEnv.twentySyncEnabled && appEnv.twentyApiKey);
+
+export const hasTwentyWebhookConfig = () =>
+  Boolean(appEnv.twentySyncEnabled && appEnv.twentyWebhookUrl);
+
+export const isTwentyCrmEnabled = () =>
+  hasTwentyApiConfig() || hasTwentyWebhookConfig();
 
 export const isSupabaseAuthEnabled = () =>
   appEnv.authProvider === "supabase" && hasSupabasePublicConfig();
