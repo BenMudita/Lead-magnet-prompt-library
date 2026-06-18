@@ -74,8 +74,38 @@ export const getMissingProductionEnv = () => {
   return missing;
 };
 
+const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1", "0.0.0.0", "[::1]"]);
+
+const normalizeOrigin = (value?: string) => {
+  if (!value) return undefined;
+
+  try {
+    return new URL(value).origin;
+  } catch {
+    return undefined;
+  }
+};
+
+const isLocalOrigin = (origin?: string) => {
+  if (!origin) return false;
+
+  try {
+    return LOCAL_HOSTNAMES.has(new URL(origin).hostname);
+  } catch {
+    return false;
+  }
+};
+
 export const absoluteAppUrl = (requestUrl?: string) => {
-  if (appEnv.appUrl) return appEnv.appUrl.replace(/\/$/, "");
-  if (requestUrl) return new URL(requestUrl).origin;
-  return "http://localhost:3000";
+  const configuredOrigin = normalizeOrigin(appEnv.appUrl);
+  const requestOrigin = normalizeOrigin(requestUrl);
+
+  if (
+    configuredOrigin &&
+    (!isLocalOrigin(configuredOrigin) || !requestOrigin || isLocalOrigin(requestOrigin))
+  ) {
+    return configuredOrigin;
+  }
+
+  return requestOrigin ?? configuredOrigin ?? "http://localhost:3000";
 };

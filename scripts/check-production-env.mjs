@@ -26,6 +26,10 @@ const paymentsProvider = process.env.PAYMENTS_PROVIDER || "demo";
 const supabasePublicKey =
   process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+const isProductionRuntime = process.env.NETLIFY === "true" || process.env.NODE_ENV === "production";
+const appUrlIsLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\])(?::|\/|$)/.test(
+  process.env.NEXT_PUBLIC_APP_URL || "",
+);
 
 const checks = [
   ["NEXT_PUBLIC_APP_URL", process.env.NEXT_PUBLIC_APP_URL, "Recommended before auth emails or Stripe redirects go live."],
@@ -65,6 +69,14 @@ if (paymentsProvider === "stripe") {
 }
 
 const missing = checks.filter(([, value]) => !value);
+const invalid = [];
+
+if (isProductionRuntime && appUrlIsLocalhost) {
+  invalid.push([
+    "NEXT_PUBLIC_APP_URL",
+    "Production auth emails cannot point at localhost. Use the deployed site URL.",
+  ]);
+}
 
 console.log("Production provider selection");
 console.log(`AUTH_PROVIDER=${authProvider}`);
@@ -72,15 +84,23 @@ console.log(`DATABASE_PROVIDER=${databaseProvider}`);
 console.log(`PAYMENTS_PROVIDER=${paymentsProvider}`);
 console.log("");
 
-if (!missing.length) {
+if (!missing.length && !invalid.length) {
   console.log("PASS all required production env values are present.");
   process.exit(0);
 }
 
-console.log("Missing values:");
+if (missing.length) console.log("Missing values:");
 for (const [name, , reason] of missing) {
   console.log(`- ${name}: ${reason}`);
 }
 
+if (invalid.length) {
+  if (missing.length) console.log("");
+  console.log("Invalid values:");
+  for (const [name, reason] of invalid) {
+    console.log(`- ${name}: ${reason}`);
+  }
+}
+
 const hardMissing = missing.filter(([name]) => name !== "NEXT_PUBLIC_APP_URL");
-process.exit(hardMissing.length ? 1 : 0);
+process.exit(hardMissing.length || invalid.length ? 1 : 0);

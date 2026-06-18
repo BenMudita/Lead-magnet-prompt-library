@@ -50,7 +50,7 @@ npm run smoke
 
 No keys are required for the local demo. For production, wire these before launch:
 
-- Supabase or chosen auth/database: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`.
+- Supabase or chosen auth/database: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and `NEXT_PUBLIC_APP_URL` set to the production site.
 - Stripe/payment keys are not required for the current email-gated prompt library flow.
 - Analytics: `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST`, or Segment equivalents.
 - AI admin assistance: `OPENAI_API_KEY` or the chosen LLM provider key.
@@ -61,6 +61,8 @@ See `docs/production-schema.sql` for a Postgres/Supabase-oriented data model.
 ## Production notes
 
 The local app intentionally supports in-memory storage and cookie-based demo sessions so the prompt library can be exercised without external dependencies. In production, set `AUTH_PROVIDER=supabase` and `DATABASE_PROVIDER=supabase`, run `docs/production-schema.sql`, then run `npm run db:seed` to load the starter categories, tags, prompts, metrics, use notes, and lead magnet entries.
+
+Supabase Auth must have the production domain set as its Site URL and must allow `/auth/callback`. Email-gated signups are saved into `public.email_signups` when a magic link is requested and marked confirmed after the callback completes.
 
 Admins manage live prompts at `/admin/prompts`. Use **Create draft** for one prompt, **Import prompts** for CSV or JSON uploads, then edit, tag, test, and publish from the prompt editor. Import rows support fields such as `title`, `body`, `categorySlug` or `category`, `tags`, `status`, `accessLevel`, `summary`, `sourceUrl`, and `sourceNotes`.
 
