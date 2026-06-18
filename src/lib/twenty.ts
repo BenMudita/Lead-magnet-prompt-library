@@ -94,6 +94,52 @@ const getResponseMessage = async (response: Response) => {
   return body.slice(0, 300);
 };
 
+const capitalize = (value: string) =>
+  value ? `${value.charAt(0).toUpperCase()}${value.slice(1)}` : value;
+
+const singularObjectName = (value: string) => {
+  if (value === "people") return "person";
+  if (value.endsWith("ies")) return `${value.slice(0, -3)}y`;
+  return value.endsWith("s") ? value.slice(0, -1) : value;
+};
+
+const getTwentyRecordId = (
+  data: unknown,
+  objectName: string,
+  fallbackId?: string,
+) => {
+  if (!data || typeof data !== "object") return fallbackId;
+
+  const response = data as {
+    id?: unknown;
+    data?: Record<string, unknown> & { id?: unknown };
+  };
+  const singular = singularObjectName(objectName);
+  const candidateKeys = [
+    "id",
+    objectName,
+    singular,
+    `create${capitalize(singular)}`,
+    `create${capitalize(objectName)}`,
+    `update${capitalize(singular)}`,
+    `update${capitalize(objectName)}`,
+  ];
+
+  const candidates = [
+    response.id,
+    response.data?.id,
+    ...candidateKeys.map((key) => {
+      const nested = response.data?.[key];
+      return nested && typeof nested === "object"
+        ? (nested as { id?: unknown }).id
+        : undefined;
+    }),
+  ];
+
+  const id = candidates.find((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0);
+  return id ?? fallbackId;
+};
+
 async function syncTwentyPerson(input: TwentyLeadSyncInput): Promise<TwentyLeadSyncResult> {
   if (!hasTwentyApiConfig()) {
     return { provider: "twenty", synced: false };
@@ -128,7 +174,7 @@ async function syncTwentyPerson(input: TwentyLeadSyncInput): Promise<TwentyLeadS
   const data = (await response.json().catch(() => ({}))) as { data?: { id?: string }; id?: string };
   return {
     provider: "twenty",
-    contactId: data.data?.id ?? data.id ?? contactId,
+    contactId: getTwentyRecordId(data, peoplePath, contactId),
     synced: true,
   };
 }
