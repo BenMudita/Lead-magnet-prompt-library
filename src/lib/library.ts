@@ -48,10 +48,10 @@ export const recommendedScore = (prompt: Prompt) => {
   return Math.round(score * 10) / 10;
 };
 
-export const canAccessPrompt = (session: Session, prompt: Prompt) => {
-  void prompt;
-  return session.accountStatus !== "guest" || isAdminRole(session.role);
-};
+export const canAccessPrompt = (session: Session, prompt: Prompt) =>
+  prompt.accessLevel === "free" ||
+  session.accountStatus === "pro" ||
+  isAdminRole(session.role);
 
 export const canCopyPrompt = canAccessPrompt;
 
@@ -85,7 +85,9 @@ export const toPublicPrompt = (prompt: Prompt, session: Session): PublicPrompt =
     canCopy,
     accessMessage: canAccess
       ? "Available"
-      : "Create a free account with your email to unlock and copy every prompt.",
+      : session.accountStatus === "guest"
+        ? "Create a free account to sample prompts, or upgrade for the full library."
+        : "Upgrade to Pro to unlock the full prompt body and copy actions.",
   };
 };
 
@@ -218,3 +220,4 @@ export const categoryStats = () =>
       testedCount: categoryPrompts.filter((prompt) => prompt.isMuditaTested).length,
     };
   });
+

@@ -22,20 +22,13 @@ export async function POST(_request: Request, context: Context) {
   });
 
   if (!canCopyPrompt(session, prompt)) {
-    const redirectUrl = `/promptlibrary/signup?redirect=${encodeURIComponent(`/promptlibrary/p/${prompt.slug}`)}`;
     recordAnalyticsEvent({
       eventName: "signup_wall_viewed",
       anonymousId: session.anonymousId,
       userId: session.userId,
       properties: { promptId: id, trigger: "copy" },
     });
-    return NextResponse.json(
-      {
-        message: "Create a free account with your email to copy this prompt.",
-        redirectUrl,
-      },
-      { status: 401 },
-    );
+    return NextResponse.json({ message: "Upgrade to Pro to copy this prompt." }, { status: 402 });
   }
 
   incrementMetric(id, "copyCount");
@@ -47,3 +40,4 @@ export async function POST(_request: Request, context: Context) {
   });
   return NextResponse.json({ body: prompt.body });
 }
+

@@ -15,13 +15,7 @@ export async function POST(request: Request, context: Context) {
   const provider = payload.provider === "claude" ? "claude" : "chatgpt";
 
   if (!canCopyPrompt(session, prompt)) {
-    return NextResponse.json(
-      {
-        message: "Create a free account with your email to send this prompt.",
-        redirectUrl: `/promptlibrary/signup?redirect=${encodeURIComponent(`/promptlibrary/p/${prompt.slug}`)}`,
-      },
-      { status: 401 },
-    );
+    return NextResponse.json({ message: "Upgrade to Pro to send this prompt." }, { status: 402 });
   }
 
   incrementMetric(id, provider === "claude" ? "sendClaudeCount" : "sendChatgptCount");
@@ -44,3 +38,4 @@ export async function POST(request: Request, context: Context) {
     message: "Prompt copied. Paste it into the model site.",
   });
 }
+

@@ -48,7 +48,7 @@ export default async function PromptDetailPage({ params }: Props) {
           {publicPrompt.isLocked ? (
             <span className="locked-badge">
               <LockKeyhole className="icon-xs" aria-hidden="true" />
-              Free account
+              Pro
             </span>
           ) : null}
         </div>
@@ -71,11 +71,8 @@ export default async function PromptDetailPage({ params }: Props) {
               <div className="paywall-inline">
                 <LockKeyhole className="icon-sm" aria-hidden="true" />
                 <span>{publicPrompt.accessMessage}</span>
-                <Link
-                  href={`/promptlibrary/signup?redirect=${encodeURIComponent(`/promptlibrary/p/${publicPrompt.slug}`)}`}
-                  className="primary-action fit"
-                >
-                  Create free account
+                <Link href={`/promptlibrary/pricing?redirect=/promptlibrary/p/${publicPrompt.slug}`} className="primary-action fit">
+                  Unlock full prompt
                 </Link>
               </div>
             </>
@@ -117,3 +114,4 @@ export default async function PromptDetailPage({ params }: Props) {
     </main>
   );
 }
+

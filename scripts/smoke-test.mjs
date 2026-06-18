@@ -67,11 +67,7 @@ assert(
 );
 
 result = await request("/api/promptlibrary/prompts/prompt_marketing_3/copy", { method: "POST" });
-assert(
-  result.response.status === 401 && result.body.redirectUrl?.startsWith("/promptlibrary/signup"),
-  "guest copy asks for free account",
-  result.response.status,
-);
+assert(result.response.status === 402, "guest premium copy blocked", result.response.status);
 
 if (authProvider === "supabase") {
   result = await request("/api/admin/prompts");
@@ -91,22 +87,17 @@ result = await request("/api/promptlibrary/prompts/prompt_marketing_1/copy", { m
 assert(result.response.status === 200 && result.body.body?.includes("You are helping me"), "free sample copy allowed");
 
 result = await request("/api/promptlibrary/prompts/prompt_marketing_3/copy", { method: "POST" });
-assert(result.response.status === 200 && result.body.body?.includes("You are helping me"), "free account copy allowed");
+assert(result.response.status === 402, "free user premium copy blocked", result.response.status);
 
 result = await request("/api/checkout", {
   method: "POST",
   headers: { "content-type": "application/json" },
   body: JSON.stringify({ redirect: "/promptlibrary/p/marketing-audience-or-stakeholder-snapshot" }),
 });
-assert(
-  result.response.status === 200 &&
-    result.body.message?.includes("free with an account") &&
-    result.body.redirectUrl === "/promptlibrary/p/marketing-audience-or-stakeholder-snapshot",
-  "checkout compatibility stays free",
-);
+assert(result.response.status === 200, "demo checkout succeeds");
 
 result = await request("/api/promptlibrary/prompts/prompt_marketing_3/copy", { method: "POST" });
-assert(result.response.status === 200 && result.body.body?.includes("You are helping me"), "account prompt copy allowed");
+assert(result.response.status === 200 && result.body.body?.includes("You are helping me"), "pro premium copy allowed");
 
 cookie = "";
 result = await request("/api/admin/prompts");

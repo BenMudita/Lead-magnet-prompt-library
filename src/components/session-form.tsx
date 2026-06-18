@@ -6,7 +6,7 @@ import type { AccountStatus, UserRole } from "@/lib/types";
 
 export function SessionForm({
   mode,
-  defaultEmail = "",
+  defaultEmail = "member@muditastudios.com",
   admin = false,
   redirectTo = "/promptlibrary",
 }: {
@@ -52,7 +52,7 @@ export function SessionForm({
         <span>I agree to the terms and privacy policy.</span>
       </label>
       <button type="submit" className="primary-action">
-        {admin ? "Enter admin demo" : mode === "signup" ? "Create free account" : "Email me a sign-in link"}
+        {admin ? "Enter admin demo" : mode === "signup" ? "Create free account" : "Log in"}
       </button>
       {message ? <p className="inline-status">{message}</p> : null}
     </form>

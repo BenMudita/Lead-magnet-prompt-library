@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, ThumbsUp } from "lucide-react";
-import { LibraryHero } from "@/components/library-hero";
+import { ArrowRight, LockKeyhole, Sparkles, ThumbsUp } from "lucide-react";
 import { MuditaHeader } from "@/components/mudita-header";
 import { SearchBar } from "@/components/search-bar";
 import { PromptGrid } from "@/components/prompt-grid";
@@ -16,13 +15,6 @@ export default async function PromptLibraryHome() {
     .filter((prompt) => prompt.isFeatured)
     .slice(0, 6);
   const helpful = publicSearch({ sort: "helpful" }, session).slice(0, 6);
-  const totals = stats.reduce(
-    (memo, item) => ({
-      promptCount: memo.promptCount + item.promptCount,
-      testedCount: memo.testedCount + item.testedCount,
-    }),
-    { promptCount: 0, testedCount: 0 },
-  );
 
   recordAnalyticsEvent({
     eventName: "prompt_library_landing_viewed",
@@ -34,7 +26,29 @@ export default async function PromptLibraryHome() {
   return (
     <main>
       <MuditaHeader />
-      <LibraryHero totalPrompts={totals.promptCount} testedPrompts={totals.testedCount} />
+      <section className="product-hero">
+        <div className="hero-copy">
+          <p className="eyebrow">Curated prompts for basic AI users</p>
+          <h1>Mudita Prompt Library</h1>
+          <p>
+            Pick the kind of work you do, open a tested prompt, and copy it into your AI tool with confidence.
+          </p>
+        </div>
+        <div className="hero-panel" aria-label="Library status">
+          <div>
+            <span className="metric-number">108</span>
+            <span className="metric-label">launch prompts</span>
+          </div>
+          <div>
+            <span className="metric-number">18</span>
+            <span className="metric-label">free samples</span>
+          </div>
+          <div>
+            <span className="metric-number">27</span>
+            <span className="metric-label">Mudita-tested</span>
+          </div>
+        </div>
+      </section>
 
       <section className="search-band" aria-labelledby="search-heading">
         <div>
@@ -47,7 +61,7 @@ export default async function PromptLibraryHome() {
       <section className="page-section" aria-labelledby="category-heading">
         <div className="section-heading">
           <div>
-            <p className="eyebrow orange">Start here</p>
+            <p className="eyebrow">Start here</p>
             <h2 id="category-heading">Choose your industry or function</h2>
           </div>
           <Link href="/promptlibrary/search" className="text-link">
@@ -55,7 +69,7 @@ export default async function PromptLibraryHome() {
           </Link>
         </div>
         <div className="category-grid">
-          {stats.map(({ category, promptCount, testedCount }) => (
+          {stats.map(({ category, promptCount, freeCount, testedCount }) => (
             <Link
               href={`/promptlibrary/${category.slug}`}
               className={`category-tile accent-${category.accent}`}
@@ -65,7 +79,7 @@ export default async function PromptLibraryHome() {
               <span className="tile-title">{category.name}</span>
               <span className="tile-copy">{category.description}</span>
               <span className="tile-meta">
-                {promptCount} prompts · free account · {testedCount} tested
+                {promptCount} prompts · {freeCount} free · {testedCount} tested
               </span>
             </Link>
           ))}
@@ -81,8 +95,8 @@ export default async function PromptLibraryHome() {
             </p>
             <h2 id="picks-heading">A few strong prompts to try first</h2>
           </div>
-          <Link href="/promptlibrary/signup" className="text-link">
-            Create a free account <ArrowRight className="icon-sm" aria-hidden="true" />
+          <Link href="/promptlibrary/pricing" className="text-link">
+            Unlock all prompts <LockKeyhole className="icon-sm" aria-hidden="true" />
           </Link>
         </div>
         <PromptGrid prompts={picks} />
@@ -103,3 +117,4 @@ export default async function PromptLibraryHome() {
     </main>
   );
 }
+
