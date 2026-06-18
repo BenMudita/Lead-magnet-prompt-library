@@ -75,8 +75,55 @@ PAYMENTS_PROVIDER=demo
 ENABLE_DEMO_CHECKOUT=true
 ```
 
-## 4. Prompt admin
+## 4. Twenty CRM lead sync
+
+Supabase remains the access system. Twenty receives the CRM lead after a signup email is successfully requested, then receives a confirmed update after the user clicks the auth email.
+
+1. In Twenty, open Settings > API & Webhooks and create a server API key.
+2. Add these server-only values in Netlify:
+
+```bash
+TWENTY_API_BASE_URL=https://api.twenty.com
+TWENTY_API_KEY=
+TWENTY_PEOPLE_OBJECT=people
+```
+
+For self-hosted Twenty, use your app origin as `TWENTY_API_BASE_URL`; the app adds `/rest` automatically.
+
+By default, the integration creates or updates a Person with the signup email. To write signup attribution into Person custom fields, create custom fields in Twenty and set their API names:
+
+```bash
+TWENTY_FIELD_SIGNUP_STATUS=
+TWENTY_FIELD_SIGNUP_URL=
+TWENTY_FIELD_SIGNUP_SOURCE=
+TWENTY_FIELD_REFERRER=
+TWENTY_FIELD_UTM_SOURCE=
+TWENTY_FIELD_UTM_MEDIUM=
+TWENTY_FIELD_UTM_CAMPAIGN=
+TWENTY_FIELD_PROMPT_SLUG=
+TWENTY_FIELD_SUPABASE_USER_ID=
+```
+
+As an alternative to direct API writes, set `TWENTY_WEBHOOK_URL` to a Twenty Workflow webhook URL. The app will post the full signup payload to that workflow.
+
+Existing Supabase projects should add the CRM/attribution columns to `public.email_signups`:
+
+```sql
+alter table public.email_signups
+  add column if not exists signup_url text,
+  add column if not exists referrer text,
+  add column if not exists utm_source text,
+  add column if not exists utm_medium text,
+  add column if not exists utm_campaign text,
+  add column if not exists prompt_slug text,
+  add column if not exists crm_provider text,
+  add column if not exists crm_contact_id text,
+  add column if not exists crm_synced_at timestamptz,
+  add column if not exists crm_sync_error text;
+```
+
+## 5. Prompt admin
 
 After Supabase auth/database are enabled and the seed has run, sign in with a `muditastudios.com` admin email and open `/admin/prompts`. Admins can create single draft prompts or bulk import CSV/JSON prompt files; published imports appear in the public prompt library immediately.
 
-Email-gated signups are captured in `public.email_signups` as soon as a magic link is requested, then marked `confirmed` after the user completes the Supabase callback.
+Email-gated signups are captured in `public.email_signups` as soon as a magic link is requested, synced to CRM when configured, then marked `confirmed` after the user completes the Supabase callback.
