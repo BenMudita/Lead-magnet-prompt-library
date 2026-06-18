@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { parseJson, requireAdmin } from "@/lib/api";
-import { createPrompt, getPrompts, recordAnalyticsEvent } from "@/lib/store";
+import { createPrompt, getPrompts } from "@/lib/prompt-data";
+import { recordAnalyticsEvent } from "@/lib/store";
 
 export async function GET() {
   const { response } = await requireAdmin();
   if (response) return response;
-  return NextResponse.json({ prompts: getPrompts(true) });
+  return NextResponse.json({ prompts: await getPrompts(true) });
 }
 
 export async function POST(request: Request) {
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "title, body, and categorySlug are required." }, { status: 400 });
   }
 
-  const prompt = createPrompt({
+  const prompt = await createPrompt({
     title: payload.title,
     body: payload.body,
     categorySlug: payload.categorySlug,
@@ -32,4 +33,3 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ id: prompt.id, prompt });
 }
-

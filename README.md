@@ -7,6 +7,7 @@ A Next.js implementation of the Mudita Prompt Library PRD. The app is product-fi
 - Product routes: `/promptlibrary`, category pages, global search, prompt detail, signup/login, account.
 - Admin routes: prompt list/edit, lead magnet entry list/edit, QA review queue, use-note moderation, analytics.
 - 108 seeded prompts across 9 categories, with 18 free samples and 27 Mudita-tested prompts.
+- Supabase-backed prompt persistence for production prompt create/edit/import, prompt metrics, votes, and moderated use notes.
 - Backend-editable lead magnet directory entries at `/promptlibrary/directory`.
 - Server-side entitlement redaction for email-gated prompt bodies.
 - Copy, send-to-ChatGPT, send-to-Claude fallback, share, vote, and use-note APIs.
@@ -37,7 +38,7 @@ npm run build
 npm run smoke
 ```
 
-`npm run smoke` expects the dev server to be running on `http://localhost:3000`.
+`npm run smoke` expects the dev server to be running on `http://localhost:3000`. Use `SMOKE_BASE_URL=http://localhost:3001 npm run smoke` when testing another port.
 
 ## Demo sessions
 
@@ -59,7 +60,9 @@ See `docs/production-schema.sql` for a Postgres/Supabase-oriented data model.
 
 ## Production notes
 
-The local app intentionally uses in-memory storage and cookie-based demo sessions so the prompt library can be exercised without external dependencies. Before deployment, replace the demo store with the production database, wire production auth/email, and replace local AI stubs with provider-backed admin jobs.
+The local app intentionally supports in-memory storage and cookie-based demo sessions so the prompt library can be exercised without external dependencies. In production, set `AUTH_PROVIDER=supabase` and `DATABASE_PROVIDER=supabase`, run `docs/production-schema.sql`, then run `npm run db:seed` to load the starter categories, tags, prompts, metrics, use notes, and lead magnet entries.
+
+Admins manage live prompts at `/admin/prompts`. Use **Create draft** for one prompt, **Import prompts** for CSV or JSON uploads, then edit, tag, test, and publish from the prompt editor. Import rows support fields such as `title`, `body`, `categorySlug` or `category`, `tags`, `status`, `accessLevel`, `summary`, `sourceUrl`, and `sourceNotes`.
 
 The ChatGPT and Claude buttons use the PRD fallback: copy prompt, open the model site, and instruct the user to paste. I did not find an official stable web prompt-prefill contract in primary provider docs, so this avoids relying on brittle URL behavior. See `docs/send-to-model-spike.md`.
 

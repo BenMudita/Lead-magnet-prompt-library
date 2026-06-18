@@ -62,3 +62,7 @@ DATABASE_PROVIDER=demo
 PAYMENTS_PROVIDER=demo
 ENABLE_DEMO_CHECKOUT=true
 ```
+
+## 4. Prompt admin
+
+After Supabase auth/database are enabled and the seed has run, sign in with a `muditastudios.com` admin email and open `/admin/prompts`. Admins can create single draft prompts or bulk import CSV/JSON prompt files; published imports appear in the public prompt library immediately.

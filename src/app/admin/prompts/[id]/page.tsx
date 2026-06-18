@@ -3,7 +3,7 @@ import { AdminPromptEditor } from "@/components/admin-prompt-editor";
 import { SessionForm } from "@/components/session-form";
 import { isSupabaseAuthEnabled } from "@/lib/env";
 import { getSession, isAdminRole } from "@/lib/session";
-import { getCategories, getPromptById, getTags } from "@/lib/store";
+import { getCategories, getPromptById, getTags } from "@/lib/prompt-data";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -34,8 +34,9 @@ export default async function AdminPromptEditPage({ params }: Props) {
     );
   }
 
-  const prompt = getPromptById(id, true);
+  const prompt = await getPromptById(id, true);
   if (!prompt) notFound();
+  const tags = await getTags(true);
 
   return (
     <section className="page-section">
@@ -45,7 +46,7 @@ export default async function AdminPromptEditPage({ params }: Props) {
           <h2>{prompt.title}</h2>
         </div>
       </div>
-      <AdminPromptEditor prompt={prompt} categories={getCategories()} tags={getTags(true)} />
+      <AdminPromptEditor prompt={prompt} categories={getCategories()} tags={tags} />
     </section>
   );
 }

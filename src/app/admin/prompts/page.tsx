@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { AdminCreatePrompt } from "@/components/admin-create-prompt";
+import { AdminPromptImport } from "@/components/admin-prompt-import";
 import { SessionForm } from "@/components/session-form";
 import { isSupabaseAuthEnabled } from "@/lib/env";
 import { getSession, isAdminRole } from "@/lib/session";
-import { getCategories, getPrompts } from "@/lib/store";
+import { getCategories, getPrompts } from "@/lib/prompt-data";
 
 export default async function AdminPromptsPage() {
   const session = await getSession();
@@ -29,7 +30,7 @@ export default async function AdminPromptsPage() {
     );
   }
 
-  const prompts = getPrompts(true);
+  const prompts = await getPrompts(true);
 
   return (
     <section className="page-section">
@@ -40,6 +41,7 @@ export default async function AdminPromptsPage() {
         </div>
       </div>
       <AdminCreatePrompt categories={getCategories()} />
+      <AdminPromptImport categories={getCategories()} />
       <div className="admin-list">
         {prompts.slice(0, 80).map((prompt) => (
           <article key={prompt.id} className="admin-row">

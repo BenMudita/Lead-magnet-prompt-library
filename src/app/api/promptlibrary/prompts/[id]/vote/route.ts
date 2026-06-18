@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { parseJson } from "@/lib/api";
 import { getSession } from "@/lib/session";
-import { getPromptById, isRateLimited, recordAnalyticsEvent, recordVote } from "@/lib/store";
+import { getPromptById, recordVote } from "@/lib/prompt-data";
+import { isRateLimited, recordAnalyticsEvent } from "@/lib/store";
 import type { VoteValue } from "@/lib/types";
 
 type Context = { params: Promise<{ id: string }> };
@@ -9,7 +10,7 @@ type Context = { params: Promise<{ id: string }> };
 export async function POST(request: Request, context: Context) {
   const session = await getSession();
   const { id } = await context.params;
-  if (!getPromptById(id)) return NextResponse.json({ message: "Prompt not found." }, { status: 404 });
+  if (!(await getPromptById(id))) return NextResponse.json({ message: "Prompt not found." }, { status: 404 });
   if (isRateLimited(`vote:${session.userId ?? session.anonymousId}:${id}`, 12)) {
     return NextResponse.json({ message: "Too many votes. Try again soon." }, { status: 429 });
   }
@@ -18,7 +19,7 @@ export async function POST(request: Request, context: Context) {
     return NextResponse.json({ message: "Vote must be helpful or not_helpful." }, { status: 400 });
   }
 
-  const vote = recordVote({
+  const vote = await recordVote({
     promptId: id,
     userId: session.userId,
     anonymousId: session.anonymousId,
@@ -33,4 +34,3 @@ export async function POST(request: Request, context: Context) {
 
   return NextResponse.json({ vote });
 }
-

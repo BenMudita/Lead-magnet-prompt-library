@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 import { canCopyPrompt } from "@/lib/library";
 import { getSession } from "@/lib/session";
-import { getPromptById, incrementMetric, isRateLimited, recordAnalyticsEvent } from "@/lib/store";
+import { getPromptById, incrementMetric } from "@/lib/prompt-data";
+import { isRateLimited, recordAnalyticsEvent } from "@/lib/store";
 
 type Context = { params: Promise<{ id: string }> };
 
 export async function POST(_request: Request, context: Context) {
   const session = await getSession();
   const { id } = await context.params;
-  const prompt = getPromptById(id);
+  const prompt = await getPromptById(id);
   if (!prompt) return NextResponse.json({ message: "Prompt not found." }, { status: 404 });
   if (isRateLimited(`copy:${session.userId ?? session.anonymousId}:${id}`, 20)) {
     return NextResponse.json({ message: "Too many copy attempts. Try again soon." }, { status: 429 });
@@ -38,7 +39,7 @@ export async function POST(_request: Request, context: Context) {
     );
   }
 
-  incrementMetric(id, "copyCount");
+  await incrementMetric(id, "copyCount");
   recordAnalyticsEvent({
     eventName: "prompt_copy_succeeded",
     anonymousId: session.anonymousId,

@@ -323,3 +323,10 @@ create policy "Members can manage their favorites"
 
 grant select on table public.lead_magnet_entries to anon, authenticated;
 grant all on table public.lead_magnet_entries to service_role;
+grant all on table public.categories to service_role;
+grant all on table public.tags to service_role;
+grant all on table public.prompts to service_role;
+grant all on table public.prompt_tags to service_role;
+grant all on table public.prompt_metrics to service_role;
+grant all on table public.prompt_votes to service_role;
+grant all on table public.use_notes to service_role;
