@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CreditCard } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 export function CheckoutButton({ redirect = "/promptlibrary" }: { redirect?: string }) {
   const [message, setMessage] = useState("");
@@ -20,7 +20,7 @@ export function CheckoutButton({ redirect = "/promptlibrary" }: { redirect?: str
         window.location.href = payload.redirectUrl;
         return;
       }
-      setMessage("Checkout complete. Pro access unlocked.");
+      setMessage(payload.message ?? "Free account access is ready.");
       router.push(payload.redirect ?? redirect);
       router.refresh();
     } else {
@@ -28,15 +28,15 @@ export function CheckoutButton({ redirect = "/promptlibrary" }: { redirect?: str
         router.push(payload.redirectUrl);
         return;
       }
-      setMessage(payload.message ?? "Checkout could not start. Stripe keys are needed for production checkout.");
+      setMessage(payload.message ?? "Create a free account to use the library.");
     }
   }
 
   return (
     <div>
       <button type="button" className="primary-action" onClick={checkout}>
-        <CreditCard className="icon-sm" aria-hidden="true" />
-        Unlock Pro
+        <Sparkles className="icon-sm" aria-hidden="true" />
+        Continue free
       </button>
       {message ? <p className="inline-status">{message}</p> : null}
     </div>

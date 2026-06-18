@@ -59,7 +59,7 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
   },
 });
 
-const { categories, tags, prompts, metrics, seedUseNotes } = loadContentModule();
+const { categories, tags, prompts, metrics, seedUseNotes, seedLeadMagnetEntries } = loadContentModule();
 const tagIdBySlug = new Map(tags.map((tag) => [tag.slug, tag.id]));
 
 await upsert(
@@ -196,6 +196,35 @@ await upsert(
   "id",
 );
 
+await upsert(
+  supabase,
+  "lead_magnet_entries",
+  seedLeadMagnetEntries.map((entry) => ({
+    id: entry.id,
+    title: entry.title,
+    slug: entry.slug,
+    summary: entry.summary,
+    description: entry.description,
+    category: entry.category,
+    audience: entry.audience,
+    outcome: entry.outcome,
+    format: entry.format,
+    tags: entry.tags,
+    cta_label: entry.ctaLabel,
+    cta_url: entry.ctaUrl,
+    proof_label: entry.proofLabel,
+    copy_count: entry.copyCount,
+    helpful_percent: entry.helpfulPercent,
+    status: entry.status,
+    is_featured: entry.isFeatured,
+    is_trending: entry.isTrending,
+    sort_order: entry.sortOrder,
+    created_at: entry.createdAt,
+    updated_at: entry.updatedAt,
+  })),
+  "id",
+);
+
 console.log(
-  `Seeded ${categories.length} categories, ${tags.length} tags, ${prompts.length} prompts, ${metrics.length} metrics, and ${seedUseNotes.length} use notes.`,
+  `Seeded ${categories.length} categories, ${tags.length} tags, ${prompts.length} prompts, ${metrics.length} metrics, ${seedUseNotes.length} use notes, and ${seedLeadMagnetEntries.length} lead magnet entries.`,
 );

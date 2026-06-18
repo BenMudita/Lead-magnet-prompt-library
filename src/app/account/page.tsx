@@ -1,9 +1,13 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { MuditaHeader } from "@/components/mudita-header";
 import { getSession } from "@/lib/session";
 
 export default async function AccountPage() {
   const session = await getSession();
+  if (session.accountStatus === "guest") {
+    redirect("/promptlibrary");
+  }
 
   return (
     <main>
@@ -11,17 +15,14 @@ export default async function AccountPage() {
       <section className="account-page">
         <div>
           <p className="eyebrow">Account</p>
-          <h1>{session.email ?? "Preview visitor"}</h1>
+          <h1>{session.email ?? "Library member"}</h1>
           <p>
-            Subscription status: <strong>{session.accountStatus}</strong>
+            Library access: <strong>email-unlocked prompt access</strong>
           </p>
         </div>
         <div className="account-actions">
-          <Link href="/promptlibrary/pricing" className="primary-action fit">
-            Billing setup
-          </Link>
-          <Link href="/admin/prompts" className="secondary-action">
-            Admin demo
+          <Link href="/promptlibrary#prompt-library" className="primary-action fit">
+            Go to prompt library
           </Link>
           <form action="/api/session" method="post">
             <input type="hidden" name="_method" value="delete" />

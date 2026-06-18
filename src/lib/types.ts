@@ -13,6 +13,7 @@ export type PromptStatus = "draft" | "in_review" | "published" | "archived";
 export type TagStatus = "suggested" | "approved" | "hidden" | "merged";
 export type VoteValue = "helpful" | "not_helpful";
 export type UseNoteStatus = "pending" | "approved" | "rejected";
+export type LeadMagnetStatus = "draft" | "published" | "archived";
 
 export interface Session {
   accountStatus: AccountStatus;
@@ -122,6 +123,37 @@ export interface AnalyticsEvent {
   createdAt: string;
 }
 
+export interface LeadMagnetEntry {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  description: string;
+  category: string;
+  audience: string;
+  outcome: string;
+  format: string;
+  tags: string[];
+  ctaLabel: string;
+  ctaUrl: string;
+  proofLabel: string;
+  copyCount: number;
+  helpfulPercent: number;
+  status: LeadMagnetStatus;
+  isFeatured: boolean;
+  isTrending: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeadMagnetSearchOptions {
+  query?: string;
+  category?: string;
+  tag?: string;
+  includeDrafts?: boolean;
+}
+
 export interface PublicPrompt {
   id: string;
   title: string;
@@ -152,4 +184,3 @@ export interface PromptSearchOptions {
   sort?: "recommended" | "helpful" | "used" | "newest";
   includeDrafts?: boolean;
 }
-

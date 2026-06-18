@@ -1,4 +1,4 @@
-import type { Prompt, PromptSearchOptions, PublicPrompt, Session } from "./types";
+import type { Prompt, PromptMetric, PromptSearchOptions, PublicPrompt, Session, UseNote } from "./types";
 import {
   getCategories,
   getCategoryBySlug,
@@ -6,6 +6,7 @@ import {
   getPrompts,
   getPublicUseNotesForPrompt,
   getTags,
+  getUseNotes,
 } from "./store";
 import { slugify } from "./content";
 import { isAdminRole } from "./session";
@@ -18,6 +19,21 @@ export const previewBody = (body: string, length = 360) => {
 export const helpfulRatio = (prompt: Prompt) => {
   const metric = getMetric(prompt.id);
   return (metric.helpfulCount + 2) / (metric.helpfulCount + metric.notHelpfulCount + 4);
+};
+
+export const voteCount = (metric: PromptMetric) => metric.helpfulCount + metric.notHelpfulCount;
+
+export const helpfulPercent = (metric: PromptMetric) =>
+  Math.round(((metric.helpfulCount + 2) / (metric.helpfulCount + metric.notHelpfulCount + 4)) * 100);
+
+export const copiesThisWeek = (metric: PromptMetric) => Math.max(18, Math.round(metric.copyCount * 0.24));
+
+export const updatedLabel = (isoDate?: string) => {
+  if (!isoDate) return "Updated recently";
+  const days = Math.max(1, Math.round((Date.now() - Date.parse(isoDate)) / 86_400_000));
+  if (days <= 1) return "Updated today";
+  if (days < 14) return `Updated ${days} days ago`;
+  return "Updated recently";
 };
 
 const usageScore = (prompt: Prompt) => {
@@ -48,10 +64,10 @@ export const recommendedScore = (prompt: Prompt) => {
   return Math.round(score * 10) / 10;
 };
 
-export const canAccessPrompt = (session: Session, prompt: Prompt) =>
-  prompt.accessLevel === "free" ||
-  session.accountStatus === "pro" ||
-  isAdminRole(session.role);
+export const canAccessPrompt = (session: Session, prompt: Prompt) => {
+  void prompt;
+  return session.accountStatus !== "guest" || isAdminRole(session.role);
+};
 
 export const canCopyPrompt = canAccessPrompt;
 
@@ -85,9 +101,7 @@ export const toPublicPrompt = (prompt: Prompt, session: Session): PublicPrompt =
     canCopy,
     accessMessage: canAccess
       ? "Available"
-      : session.accountStatus === "guest"
-        ? "Create a free account to sample prompts, or upgrade for the full library."
-        : "Upgrade to Pro to unlock the full prompt body and copy actions.",
+      : "Create a free account with your email to unlock and copy every prompt.",
   };
 };
 
@@ -97,6 +111,9 @@ const searchableText = (prompt: Prompt) => {
     .filter((tag) => prompt.tagSlugs.includes(tag.slug))
     .map((tag) => tag.name)
     .join(" ");
+  const notes = getPublicUseNotesForPrompt(prompt.id)
+    .map((note) => note.body)
+    .join(" ");
   return [
     prompt.title,
     prompt.plainEnglishExplanation,
@@ -104,6 +121,7 @@ const searchableText = (prompt: Prompt) => {
     category?.name,
     category?.description,
     tagNames,
+    notes,
   ]
     .join(" ")
     .toLowerCase();
@@ -160,6 +178,88 @@ export const searchPrompts = (options: PromptSearchOptions = {}) => {
 export const publicSearch = (options: PromptSearchOptions, session: Session) =>
   searchPrompts(options).map((prompt) => toPublicPrompt(prompt, session));
 
+const fromIds = (ids: string[], session: Session) => {
+  const promptMap = new Map(getPrompts().map((prompt) => [prompt.id, prompt]));
+  return ids.flatMap((id) => {
+    const prompt = promptMap.get(id);
+    return prompt ? [toPublicPrompt(prompt, session)] : [];
+  });
+};
+
+export const homepageTrending = (session: Session) =>
+  fromIds(
+    [
+      "prompt_founder-startup_10",
+      "prompt_sales_2",
+      "prompt_marketing_8",
+      "prompt_product_3",
+      "prompt_engineering_12",
+    ],
+    session,
+  ).sort((a, b) => copiesThisWeek(b.metric) - copiesThisWeek(a.metric));
+
+export const homepagePicks = (session: Session) =>
+  fromIds(
+    [
+      "prompt_founder-startup_8",
+      "prompt_operations_5",
+      "prompt_finance_5",
+      "prompt_hr-recruiting_11",
+      "prompt_customer-support_6",
+      "prompt_product_3",
+    ],
+    session,
+  );
+
+export const homepageRoleSlugs = [
+  "marketing",
+  "sales",
+  "product",
+  "founder-startup",
+  "finance",
+  "hr-recruiting",
+  "engineering",
+  "operations",
+  "customer-support",
+];
+
+export type QuickFilter = {
+  label: string;
+  category?: string;
+  tag?: string;
+};
+
+export const quickFilters: QuickFilter[] = [
+  { label: "Marketing", category: "marketing" },
+  { label: "Sales", category: "sales" },
+  { label: "Founder", category: "founder-startup" },
+  { label: "Product", category: "product" },
+  { label: "Email", tag: "email" },
+  { label: "Meeting", tag: "meeting" },
+  { label: "Launch", tag: "launch" },
+  { label: "Analysis", tag: "analysis" },
+  { label: "Planning", tag: "planning" },
+  { label: "Finance", category: "finance" },
+  { label: "Engineering", category: "engineering" },
+  { label: "Customer Support", category: "customer-support" },
+];
+
+export const communityActivity = (session: Session) =>
+  getUseNotes("approved")
+    .filter((note) => note.isPublic)
+    .map((note) => {
+      const prompt = getPrompts().find((candidate) => candidate.id === note.promptId);
+      return prompt ? { note, prompt: toPublicPrompt(prompt, session) } : undefined;
+    })
+    .filter((item): item is { note: UseNote; prompt: PublicPrompt } => Boolean(item))
+    .sort(
+      (a, b) =>
+        Number(b.note.isFeatured) - Number(a.note.isFeatured) ||
+        b.prompt.metric.copyCount - a.prompt.metric.copyCount ||
+        b.note.createdAt.localeCompare(a.note.createdAt),
+    )
+    .slice(0, 4);
+
 export const getCategoryRows = (categorySlug: string, session: Session) => {
   const categoryPrompts = getPrompts().filter((prompt) => prompt.categorySlug === categorySlug);
   const asPublic = (items: Prompt[]) => items.slice(0, 6).map((prompt) => toPublicPrompt(prompt, session));
@@ -200,6 +300,62 @@ export const relatedPrompts = (prompt: Prompt, session: Session) => {
 
 export const promptUseNotes = (promptId: string) => getPublicUseNotesForPrompt(promptId);
 
+export const promptValueGuide = (prompt: Prompt) => {
+  const title = prompt.title.toLowerCase();
+  const category = getCategoryBySlug(prompt.categorySlug);
+  const categoryName = category?.name ?? "your team";
+
+  if (title.includes("investor update")) {
+    return {
+      helpsWith: ["Turns rough founder notes into a clear update", "Highlights traction, blockers, risks, and asks", "Keeps investors informed without sounding overproduced"],
+      bestFor: ["Founders", "Startup operators", "Investor relations leads"],
+      youllGet: ["A concise investor update", "A metrics and progress section", "A clear asks and next steps section"],
+    };
+  }
+
+  if (title.includes("content calendar") || title.includes("launch plan")) {
+    return {
+      helpsWith: ["Turns a broad launch goal into a practical plan", "Organizes weekly themes and daily actions", "Spots missing owners, channels, and launch risks"],
+      bestFor: ["Founders", "Marketing leads", "Product leads"],
+      youllGet: ["A structured calendar", "Suggested actions by week", "Risks, owners, and checkpoints"],
+    };
+  }
+
+  if (title.includes("customer feedback")) {
+    return {
+      helpsWith: ["Clusters messy feedback into clear themes", "Finds product opportunities and blockers", "Turns comments into next research questions"],
+      bestFor: ["Product managers", "Founders", "Customer-facing teams"],
+      youllGet: ["Insight themes", "Potential product bets", "Follow-up questions and risks"],
+    };
+  }
+
+  if (title.includes("risks")) {
+    return {
+      helpsWith: ["Reviews plans before the team commits", "Identifies blockers, dependencies, and unclear owners", "Suggests mitigation steps that are easy to act on"],
+      bestFor: ["Engineering managers", "Product leads", "Team leads"],
+      youllGet: ["A ranked risk list", "Missing assumptions", "Recommended next actions"],
+    };
+  }
+
+  if (title.includes("meeting notes")) {
+    return {
+      helpsWith: ["Turns rough notes into a clean team summary", "Separates decisions from open questions", "Pulls out owners, deadlines, and follow-ups"],
+      bestFor: ["Operators", "Team leads", "Project owners"],
+      youllGet: ["A meeting summary", "Decision and action lists", "Open questions to resolve"],
+    };
+  }
+
+  return {
+    helpsWith: [
+      `Turns rough ${categoryName.toLowerCase()} context into a usable draft`,
+      "Prioritizes the highest-impact work",
+      "Identifies risks, blockers, and next actions",
+    ],
+    bestFor: [categoryName, "Founders", "Team leads"],
+    youllGet: ["A clear first draft", "Suggested next actions", "Risks and missing context to check"],
+  };
+};
+
 export const availableFilterTags = (categorySlug?: string) => {
   const prompts = searchPrompts({ categorySlug });
   const tagCounts = new Map<string, number>();
@@ -220,4 +376,3 @@ export const categoryStats = () =>
       testedCount: categoryPrompts.filter((prompt) => prompt.isMuditaTested).length,
     };
   });
-

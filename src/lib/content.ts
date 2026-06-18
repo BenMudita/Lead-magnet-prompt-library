@@ -1,4 +1,4 @@
-import type { Category, Prompt, PromptMetric, Tag, UseNote } from "./types";
+import type { Category, LeadMagnetEntry, Prompt, PromptMetric, Tag, UseNote } from "./types";
 
 const NOW = "2026-06-15T12:00:00.000Z";
 
@@ -154,6 +154,12 @@ const tagNames = [
   "prioritization",
   "moderation",
   "approved",
+  "campaigns",
+  "positioning",
+  "team updates",
+  "executive summary",
+  "project plan",
+  "scorecard",
 ];
 
 export const slugify = (value: string) =>
@@ -171,6 +177,153 @@ export const tags: Tag[] = tagNames.map((name) => ({
   createdAt: NOW,
   updatedAt: NOW,
 }));
+
+export const seedLeadMagnetEntries: LeadMagnetEntry[] = [
+  {
+    id: "lead_founder_investor_update",
+    title: "Founder investor update",
+    slug: "founder-investor-update",
+    summary: "Turn messy founder notes into a clear monthly investor update.",
+    description:
+      "A practical update structure for traction, risks, asks, and next steps so investors know exactly where things stand.",
+    category: "Founder",
+    audience: "Founders and startup operators",
+    outcome: "A concise investor update",
+    format: "Prompt",
+    tags: ["fundraising", "team updates", "executive summary"],
+    ctaLabel: "Open prompt",
+    ctaUrl: "/promptlibrary/p/write-a-founder-investor-update",
+    proofLabel: "Copied by founders this week",
+    copyCount: 184,
+    helpfulPercent: 92,
+    status: "published",
+    isFeatured: true,
+    isTrending: true,
+    sortOrder: 10,
+    createdAt: NOW,
+    updatedAt: NOW,
+  },
+  {
+    id: "lead_content_calendar",
+    title: "30-day content calendar",
+    slug: "30-day-content-calendar",
+    summary: "Build a simple one-month content plan from an offer, audience, and channel.",
+    description:
+      "Use it to create weekly themes, daily post ideas, CTA angles, and repurposing notes without starting from a blank page.",
+    category: "Marketing",
+    audience: "Founders, marketers, and solo operators",
+    outcome: "A usable 30-day content calendar",
+    format: "Prompt pack",
+    tags: ["campaigns", "planning", "social"],
+    ctaLabel: "Open prompt",
+    ctaUrl: "/promptlibrary/p/create-a-content-calendar",
+    proofLabel: "Popular with early teams",
+    copyCount: 221,
+    helpfulPercent: 90,
+    status: "published",
+    isFeatured: true,
+    isTrending: true,
+    sortOrder: 20,
+    createdAt: NOW,
+    updatedAt: NOW,
+  },
+  {
+    id: "lead_sales_outbound_email",
+    title: "Cold outbound email",
+    slug: "cold-outbound-email",
+    summary: "Draft a plain-spoken outbound email that earns a reply.",
+    description:
+      "A focused sales prompt for tightening the hook, matching the prospect's world, and ending with a low-friction next step.",
+    category: "Sales",
+    audience: "Sales teams and founders selling B2B",
+    outcome: "A short outbound email draft",
+    format: "Template",
+    tags: ["outbound", "email", "follow-up"],
+    ctaLabel: "Open prompt",
+    ctaUrl: "/promptlibrary/p/draft-a-cold-outbound-email",
+    proofLabel: "High-copy sales resource",
+    copyCount: 198,
+    helpfulPercent: 88,
+    status: "published",
+    isFeatured: false,
+    isTrending: true,
+    sortOrder: 30,
+    createdAt: NOW,
+    updatedAt: NOW,
+  },
+  {
+    id: "lead_meeting_summary",
+    title: "Messy meeting notes summary",
+    slug: "messy-meeting-notes-summary",
+    summary: "Convert rough meeting notes into decisions, open questions, owners, and next actions.",
+    description:
+      "Best for turning scattered notes into a clear follow-up that the team can actually act on after a meeting.",
+    category: "Operations",
+    audience: "Operators, team leads, and project owners",
+    outcome: "A clean meeting summary",
+    format: "Workflow",
+    tags: ["meeting", "operations", "team updates"],
+    ctaLabel: "Open prompt",
+    ctaUrl: "/promptlibrary/p/summarize-messy-meeting-notes",
+    proofLabel: "Useful after recurring meetings",
+    copyCount: 166,
+    helpfulPercent: 91,
+    status: "published",
+    isFeatured: true,
+    isTrending: false,
+    sortOrder: 40,
+    createdAt: NOW,
+    updatedAt: NOW,
+  },
+  {
+    id: "lead_project_risk_review",
+    title: "Project risk review",
+    slug: "project-risk-review",
+    summary: "Find blockers, dependencies, and risky assumptions before a project starts.",
+    description:
+      "A lightweight risk-review prompt for managers who need a practical mitigation list before committing the team.",
+    category: "Engineering",
+    audience: "Engineering managers, product leads, and founders",
+    outcome: "A ranked risk list with mitigation steps",
+    format: "Checklist",
+    tags: ["risk", "project plan", "analysis"],
+    ctaLabel: "Open prompt",
+    ctaUrl: "/promptlibrary/p/find-risks-in-a-project-plan",
+    proofLabel: "Mudita-tested planning aid",
+    copyCount: 142,
+    helpfulPercent: 89,
+    status: "published",
+    isFeatured: false,
+    isTrending: true,
+    sortOrder: 50,
+    createdAt: NOW,
+    updatedAt: NOW,
+  },
+  {
+    id: "lead_hiring_scorecard",
+    title: "Hiring scorecard",
+    slug: "hiring-scorecard",
+    summary: "Create a practical scorecard for evaluating candidates consistently.",
+    description:
+      "Clarifies must-haves, nice-to-haves, interview signals, red flags, and calibration notes for a role.",
+    category: "HR",
+    audience: "Hiring managers and people teams",
+    outcome: "A structured hiring scorecard",
+    format: "Template",
+    tags: ["hiring", "scorecard", "interview"],
+    ctaLabel: "Open prompt",
+    ctaUrl: "/promptlibrary/p/build-a-hiring-scorecard",
+    proofLabel: "Helpful for founder-led hiring",
+    copyCount: 118,
+    helpfulPercent: 86,
+    status: "published",
+    isFeatured: false,
+    isTrending: false,
+    sortOrder: 60,
+    createdAt: NOW,
+    updatedAt: NOW,
+  },
+];
 
 const templates = [
   {
@@ -259,6 +412,120 @@ const categoryFocus: Record<string, string> = {
   "customer-support": "customer issue, tone, policy, timeline, and desired resolution",
 };
 
+type PromptMerchandising = {
+  title: string;
+  explanation: string;
+  task: string;
+  tags: string[];
+  returnItems: string[];
+  featured?: boolean;
+  tested?: boolean;
+  qualityBoost?: number;
+};
+
+const promptMerchandising: Record<string, PromptMerchandising> = {
+  "prompt_founder-startup_10": {
+    title: "Write a founder investor update",
+    explanation: "Turn scattered founder notes into a crisp investor update with traction, risks, asks, and next steps.",
+    task: "write an investor update that feels clear, honest, and easy to forward",
+    tags: ["startup", "fundraising", "reporting"],
+    returnItems: ["A short investor-ready update", "Progress, metrics, and blockers", "Clear asks and next steps"],
+    featured: true,
+    tested: true,
+    qualityBoost: 18,
+  },
+  "prompt_founder-startup_8": {
+    title: "Create a 30-day launch plan",
+    explanation: "Map a launch into weekly themes, daily actions, owners, risks, and measurable signals.",
+    task: "create a practical 30-day launch plan from rough context",
+    tags: ["startup", "launch", "planning"],
+    returnItems: ["A four-week launch calendar", "Daily actions and owners", "Risks, checkpoints, and success signals"],
+    featured: true,
+    tested: true,
+    qualityBoost: 17,
+  },
+  "prompt_sales_2": {
+    title: "Draft a cold outbound email",
+    explanation: "Write a direct cold email with a clear reason to care, a useful hook, and a low-friction next step.",
+    task: "draft a cold outbound email that sounds useful instead of generic",
+    tags: ["outbound", "email", "B2B"],
+    returnItems: ["A short outbound email", "Three subject line options", "A softer follow-up version"],
+    featured: true,
+    tested: true,
+    qualityBoost: 16,
+  },
+  "prompt_operations_5": {
+    title: "Summarize messy meeting notes",
+    explanation: "Turn rough notes into a clean summary with decisions, open questions, owners, and follow-ups.",
+    task: "summarize messy meeting notes into something a team can act on",
+    tags: ["meeting", "operations", "team updates"],
+    returnItems: ["A clean meeting summary", "Decisions and open questions", "Owners, deadlines, and follow-ups"],
+    featured: true,
+    tested: true,
+    qualityBoost: 15,
+  },
+  "prompt_product_3": {
+    title: "Turn customer feedback into product insights",
+    explanation: "Cluster raw customer feedback into themes, product opportunities, risks, and next research questions.",
+    task: "turn raw customer feedback into product insights and next actions",
+    tags: ["feedback", "research", "analysis"],
+    returnItems: ["Customer themes", "Product opportunities", "Follow-up questions and risks"],
+    featured: true,
+    tested: true,
+    qualityBoost: 18,
+  },
+  "prompt_engineering_12": {
+    title: "Find risks in a project plan",
+    explanation: "Review a project plan for likely blockers, unclear owners, hidden dependencies, and quality risks.",
+    task: "find risks in a project plan before the team commits",
+    tags: ["risk", "project plan", "analysis"],
+    returnItems: ["A ranked risk list", "Missing assumptions", "Simple mitigation steps"],
+    featured: true,
+    tested: true,
+    qualityBoost: 16,
+  },
+  "prompt_finance_5": {
+    title: "Turn metrics into an executive summary",
+    explanation: "Translate raw numbers into a plain-English executive summary with trends, drivers, and decisions.",
+    task: "turn metrics into an executive summary that leaders can scan quickly",
+    tags: ["finance", "analysis", "executive summary"],
+    returnItems: ["A plain-English metrics summary", "Drivers behind the numbers", "Decisions and watchouts"],
+    featured: true,
+    tested: true,
+    qualityBoost: 17,
+  },
+  "prompt_hr-recruiting_11": {
+    title: "Build a hiring scorecard",
+    explanation: "Create a practical scorecard that clarifies role outcomes, interview signals, and decision criteria.",
+    task: "build a hiring scorecard for a role before interviews begin",
+    tags: ["hiring", "interview", "scorecard"],
+    returnItems: ["Role outcomes", "Interview signals", "A simple decision rubric"],
+    featured: true,
+    tested: true,
+    qualityBoost: 15,
+  },
+  "prompt_customer-support_6": {
+    title: "Write a customer support escalation reply",
+    explanation: "Draft a calm escalation reply that acknowledges the issue, sets expectations, and gives the next step.",
+    task: "write a customer support escalation reply that is clear and human",
+    tags: ["customer support", "email", "risk"],
+    returnItems: ["A polished escalation reply", "A short internal note", "Tone and policy risks to check"],
+    featured: true,
+    tested: true,
+    qualityBoost: 16,
+  },
+  "prompt_marketing_8": {
+    title: "Create a content calendar",
+    explanation: "Turn a campaign goal into a simple content calendar with topics, channels, owners, and timing.",
+    task: "create a content calendar from a campaign goal and rough ideas",
+    tags: ["social", "campaigns", "planning"],
+    returnItems: ["A 30-day content calendar", "Channel ideas", "Repurposing opportunities"],
+    featured: true,
+    tested: true,
+    qualityBoost: 17,
+  },
+};
+
 const buildBody = (category: Category, template: (typeof templates)[number]) => `You are helping me with ${category.name.toLowerCase()} work.
 
 My goal: [describe the outcome you want]
@@ -279,31 +546,51 @@ Return:
 
 Use simple language. If you need more context, ask up to three clarifying questions first.`;
 
+const buildMerchandisedBody = (category: Category, override: PromptMerchandising) => `You are helping me with ${category.name.toLowerCase()} work.
+
+My goal: [describe the outcome you want]
+Current situation: [paste notes, context, metrics, or rough thoughts]
+Audience or owner: [who this is for]
+Constraints: [time, resources, policy, tone, or must-avoid items]
+
+Focus on: ${categoryFocus[category.slug]}.
+
+Please help me ${override.task}.
+
+Return:
+${override.returnItems.map((item, index) => `${index + 1}. ${item}.`).join("\n")}
+${override.returnItems.length + 1}. Any risks, tradeoffs, or missing context I should check.
+${override.returnItems.length + 2}. A shorter version I can paste into an email, doc, or message.
+
+Use simple language. If you need more context, ask up to three clarifying questions first.`;
+
 export const prompts: Prompt[] = categories.flatMap((category, categoryIndex) =>
   templates.map((template, templateIndex) => {
-    const title = `${category.name} ${template.title}`
+    const id = `prompt_${category.slug}_${templateIndex + 1}`;
+    const override = promptMerchandising[id];
+    const title = (override?.title ?? `${category.name} ${template.title}`)
       .replace("HR & Recruiting", "HR and recruiting")
       .replace("Founder/Startup", "Founder");
     const slug = slugify(title);
     const freeSample = templateIndex === 0 || templateIndex === 1;
-    const featured = templateIndex === 0 || templateIndex === 3 || templateIndex === 7;
-    const tested = templateIndex === 0 || templateIndex === 1 || templateIndex === 4;
+    const featured = override?.featured ?? (templateIndex === 0 || templateIndex === 3 || templateIndex === 7);
+    const tested = override?.tested ?? (templateIndex === 0 || templateIndex === 1 || templateIndex === 4);
     const createdAt = new Date(Date.UTC(2026, 5, 1 + templateIndex)).toISOString();
 
     return {
-      id: `prompt_${category.slug}_${templateIndex + 1}`,
+      id,
       title: title.charAt(0).toUpperCase() + title.slice(1),
       slug,
-      body: buildBody(category, template),
-      plainEnglishExplanation: `${template.explanation} Built for ${category.name.toLowerCase()} work.`,
+      body: override ? buildMerchandisedBody(category, override) : buildBody(category, template),
+      plainEnglishExplanation: override?.explanation ?? `${template.explanation} Built for ${category.name.toLowerCase()} work.`,
       categoryId: category.id,
       categorySlug: category.slug,
       tagSlugs: Array.from(
-        new Set([...category.primaryTags.slice(0, 3), ...template.tags].map(slugify)),
+        new Set([...category.primaryTags.slice(0, 3), ...(override?.tags ?? template.tags)].map(slugify)),
       ).slice(0, 6),
       accessLevel: freeSample ? "free" : "pro",
       status: "published",
-      editorialQualityScore: 72 + ((categoryIndex * 5 + templateIndex * 3) % 25),
+      editorialQualityScore: Math.min(99, 72 + ((categoryIndex * 5 + templateIndex * 3) % 25) + (override?.qualityBoost ?? 0)),
       isFeatured: featured,
       isMuditaTested: tested,
       testedAt: tested ? new Date(Date.UTC(2026, 5, 8 + templateIndex)).toISOString() : undefined,
@@ -320,6 +607,19 @@ export const prompts: Prompt[] = categories.flatMap((category, categoryIndex) =>
     } satisfies Prompt;
   }),
 );
+
+const useCaseNotes: Record<string, string> = {
+  "prompt_founder-startup_10": "Used by a founder to turn rough investor notes into a weekly update with metrics, asks, and risks.",
+  "prompt_founder-startup_8": "Used by a startup team to turn a launch idea into weekly milestones and daily actions.",
+  "prompt_sales_2": "Used by a sales lead to draft a cold outbound email that felt specific instead of automated.",
+  "prompt_operations_5": "Used by an operations lead to turn a messy meeting transcript into owners, deadlines, and open questions.",
+  "prompt_product_3": "Used by a PM to group customer feedback into product themes and launch blockers.",
+  "prompt_engineering_12": "Used by an engineering manager to spot rollout risks before a sprint plan locked.",
+  "prompt_finance_5": "Used by a finance operator to turn metrics into a short executive summary for leadership.",
+  "prompt_hr-recruiting_11": "Used by a hiring manager to create a scorecard before the first candidate screen.",
+  "prompt_customer-support_6": "Used by a support lead to write a calm escalation reply after a frustrated customer email.",
+  "prompt_marketing_8": "Used by a marketer to create a content calendar from a rough campaign goal.",
+};
 
 export const metrics: PromptMetric[] = prompts.map((prompt, index) => {
   const base = 18 + ((index * 17) % 160);
@@ -367,7 +667,7 @@ export const seedUseNotes: UseNote[] = prompts
       id: `note_${prompt.id}_user`,
       promptId: prompt.id,
       userId: "user_seed_member",
-      body: "Used this to turn scattered notes into a first draft I could actually send to my team.",
+      body: useCaseNotes[prompt.id] ?? "Used this to turn scattered notes into a first draft I could actually send to my team.",
       status: "approved",
       isPublic: true,
       isFeatured: false,

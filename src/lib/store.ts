@@ -1,6 +1,8 @@
-import { categories, metrics, prompts, seedUseNotes, slugify, tags } from "./content";
+import { categories, metrics, prompts, seedLeadMagnetEntries, seedUseNotes, slugify, tags } from "./content";
 import type {
   AnalyticsEvent,
+  LeadMagnetEntry,
+  LeadMagnetSearchOptions,
   Prompt,
   PromptMetric,
   PromptVote,
@@ -16,6 +18,7 @@ interface StoreState {
   metrics: PromptMetric[];
   votes: PromptVote[];
   useNotes: UseNote[];
+  leadMagnetEntries: LeadMagnetEntry[];
   analyticsEvents: AnalyticsEvent[];
   rateLimits: Map<string, number[]>;
 }
@@ -30,9 +33,14 @@ export const store =
     metrics: structuredClone(metrics),
     votes: [],
     useNotes: structuredClone(seedUseNotes),
+    leadMagnetEntries: structuredClone(seedLeadMagnetEntries),
     analyticsEvents: [],
     rateLimits: new Map<string, number[]>(),
   });
+
+if (!store.leadMagnetEntries) {
+  store.leadMagnetEntries = structuredClone(seedLeadMagnetEntries);
+}
 
 const now = () => new Date().toISOString();
 const makeId = (prefix: string) => `${prefix}_${Math.random().toString(36).slice(2, 10)}`;
@@ -219,6 +227,92 @@ export const recordAnalyticsEvent = (
   return created;
 };
 
+const normalizeEntryTags = (tags: string[] = []) =>
+  Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean))).slice(0, 12);
+
+const normalizeEntrySlug = (title: string, slug?: string) => slugify(slug || title);
+
+const entrySearchableText = (entry: LeadMagnetEntry) =>
+  [
+    entry.title,
+    entry.summary,
+    entry.description,
+    entry.category,
+    entry.audience,
+    entry.outcome,
+    entry.format,
+    entry.tags.join(" "),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+export const getLeadMagnetEntries = (options: LeadMagnetSearchOptions = {}) => {
+  const query = options.query?.trim().toLowerCase();
+  const category = options.category?.trim().toLowerCase();
+  const tag = options.tag?.trim().toLowerCase();
+
+  return store.leadMagnetEntries
+    .filter((entry) => (options.includeDrafts ? entry.status !== "archived" : entry.status === "published"))
+    .filter((entry) => (query ? entrySearchableText(entry).includes(query) : true))
+    .filter((entry) => (category ? entry.category.toLowerCase() === category : true))
+    .filter((entry) => (tag ? entry.tags.some((candidate) => candidate.toLowerCase() === tag) : true))
+    .sort(
+      (a, b) =>
+        Number(b.isFeatured) - Number(a.isFeatured) ||
+        Number(b.isTrending) - Number(a.isTrending) ||
+        a.sortOrder - b.sortOrder ||
+        b.updatedAt.localeCompare(a.updatedAt),
+    );
+};
+
+export const getLeadMagnetEntryById = (id: string, includeDrafts = false) =>
+  getLeadMagnetEntries({ includeDrafts }).find((entry) => entry.id === id);
+
+export const getLeadMagnetEntryBySlug = (slug: string, includeDrafts = false) =>
+  getLeadMagnetEntries({ includeDrafts }).find((entry) => entry.slug === slug);
+
+export const createLeadMagnetEntry = (
+  input: Pick<LeadMagnetEntry, "title" | "summary" | "category"> & Partial<LeadMagnetEntry>,
+) => {
+  const entry: LeadMagnetEntry = {
+    id: makeId("lead"),
+    title: input.title.trim(),
+    slug: normalizeEntrySlug(input.title, input.slug),
+    summary: input.summary.trim(),
+    description: input.description?.trim() || input.summary.trim(),
+    category: input.category.trim(),
+    audience: input.audience?.trim() || "Founders and operators",
+    outcome: input.outcome?.trim() || "A useful first draft",
+    format: input.format?.trim() || "Prompt",
+    tags: normalizeEntryTags(input.tags),
+    ctaLabel: input.ctaLabel?.trim() || "Open resource",
+    ctaUrl: input.ctaUrl?.trim() || "/promptlibrary/search",
+    proofLabel: input.proofLabel?.trim() || "New resource",
+    copyCount: input.copyCount ?? 0,
+    helpfulPercent: input.helpfulPercent ?? 80,
+    status: input.status ?? "draft",
+    isFeatured: input.isFeatured ?? false,
+    isTrending: input.isTrending ?? false,
+    sortOrder: input.sortOrder ?? store.leadMagnetEntries.length * 10 + 10,
+    createdAt: now(),
+    updatedAt: now(),
+  };
+  store.leadMagnetEntries.unshift(entry);
+  return entry;
+};
+
+export const updateLeadMagnetEntry = (id: string, patch: Partial<LeadMagnetEntry>) => {
+  const entry = store.leadMagnetEntries.find((candidate) => candidate.id === id);
+  if (!entry) return undefined;
+  Object.assign(entry, {
+    ...patch,
+    slug: patch.slug || (patch.title ? normalizeEntrySlug(patch.title, entry.slug) : entry.slug),
+    tags: patch.tags ? normalizeEntryTags(patch.tags) : entry.tags,
+    updatedAt: now(),
+  });
+  return entry;
+};
+
 export const getAnalyticsSummary = () => {
   const eventsByName = store.analyticsEvents.reduce<Record<string, number>>((acc, event) => {
     acc[event.eventName] = (acc[event.eventName] ?? 0) + 1;
@@ -335,4 +429,3 @@ export const mergeTag = (fromSlug: string, toSlug: string) => {
   from.updatedAt = now();
   return { from, to };
 };
-

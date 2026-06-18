@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, FileText, Inbox, Tags } from "lucide-react";
+import { BarChart3, FileText, Inbox, Library, Tags } from "lucide-react";
 
 export function AdminNav() {
   return (
@@ -7,6 +7,10 @@ export function AdminNav() {
       <Link href="/admin/prompts">
         <FileText className="icon-sm" aria-hidden="true" />
         Prompts
+      </Link>
+      <Link href="/admin/entries">
+        <Library className="icon-sm" aria-hidden="true" />
+        Entries
       </Link>
       <Link href="/admin/reviews">
         <Tags className="icon-sm" aria-hidden="true" />
@@ -23,4 +27,3 @@ export function AdminNav() {
     </nav>
   );
 }
-

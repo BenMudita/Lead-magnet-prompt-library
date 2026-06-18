@@ -5,7 +5,7 @@ import { FilterChips } from "@/components/filter-chips";
 import { MuditaHeader } from "@/components/mudita-header";
 import { PromptGrid } from "@/components/prompt-grid";
 import { SearchBar } from "@/components/search-bar";
-import { availableFilterTags, getCategoryRows, publicSearch } from "@/lib/library";
+import { availableFilterTags, publicSearch } from "@/lib/library";
 import { getCategoryBySlug, recordAnalyticsEvent } from "@/lib/store";
 import { getSession } from "@/lib/session";
 
@@ -23,11 +23,11 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const session = await getSession();
   const q = queryParams.q ?? "";
   const activeTags = queryParams.tags?.split(",").filter(Boolean) ?? [];
-  const sort = queryParams.sort as "recommended" | "helpful" | "used" | "newest" | undefined;
+  const tab = (queryParams.tab as "all" | "trending" | "most-copied" | "highest-rated" | "new" | undefined) ?? "all";
+  const sort =
+    tab === "highest-rated" ? "helpful" : tab === "new" ? "newest" : tab === "trending" || tab === "most-copied" ? "used" : undefined;
   const tags = availableFilterTags(category.slug);
   const filtered = publicSearch({ categorySlug: category.slug, query: q, tagSlugs: activeTags, sort }, session);
-  const rows = getCategoryRows(category.slug, session);
-  const hasFilters = Boolean(q || activeTags.length || sort);
 
   recordAnalyticsEvent({
     eventName: q ? "category_search_submitted" : "category_tile_clicked",
@@ -41,12 +41,13 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       <MuditaHeader />
       <section className={`category-hero accent-${category.accent}`}>
         <p className="eyebrow">Category</p>
-        <h1>{category.name}</h1>
-        <p>{category.description}</p>
+        <h1>{category.name} prompts</h1>
+        <p>{category.description.replace("Prompts for", "Ready-to-use prompts for")}</p>
         <SearchBar
           initialQuery={q}
           categorySlug={category.slug}
-          placeholder={`Search ${category.name.toLowerCase()} prompts`}
+          label={`Search within ${category.name}`}
+          placeholder={`Search within ${category.name}...`}
           compact
         />
       </section>
@@ -56,60 +57,45 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           <FilterChips
             tags={tags}
             activeTags={activeTags}
-            basePath={`/promptlibrary/${category.slug}`}
-            searchParams={{ q, sort }}
-          />
+              basePath={`/promptlibrary/${category.slug}`}
+              searchParams={{ q, tab }}
+            />
           <div className="sort-links" aria-label="Sort prompts">
-            {["recommended", "helpful", "used", "newest"].map((option) => (
+            {[
+              ["all", "All"],
+              ["trending", "Trending"],
+              ["most-copied", "Most copied"],
+              ["highest-rated", "Highest rated"],
+              ["new", "New"],
+            ].map(([option, label]) => (
               <Link
                 key={option}
-                className={sort === option || (!sort && option === "recommended") ? "sort-link active" : "sort-link"}
+                className={tab === option ? "sort-link active" : "sort-link"}
                 href={`/promptlibrary/${category.slug}?${new URLSearchParams({
                   ...(q ? { q } : {}),
                   ...(activeTags.length ? { tags: activeTags.join(",") } : {}),
-                  sort: option,
+                  ...(option !== "all" ? { tab: option } : {}),
                 }).toString()}`}
               >
-                {option === "used" ? "Most used" : option[0].toUpperCase() + option.slice(1)}
+                {label}
               </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {hasFilters ? (
-        <section className="page-section" aria-labelledby="filtered-heading">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">Filtered results</p>
-              <h2 id="filtered-heading">{filtered.length} prompts found</h2>
-            </div>
-            <Link href={`/promptlibrary/search?category=${category.slug}`} className="text-link">
-              Search globally <ArrowRight className="icon-sm" aria-hidden="true" />
-            </Link>
+      <section className="page-section" aria-labelledby="filtered-heading">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">{filtered.length} prompts</p>
+            <h2 id="filtered-heading">{tab === "all" ? `All ${category.name.toLowerCase()} prompts` : `${category.name} prompts by ${tab.replace("-", " ")}`}</h2>
           </div>
-          <PromptGrid prompts={filtered} />
-        </section>
-      ) : (
-        <>
-          <PromptRow title="Mudita Picks" prompts={rows.picks} />
-          <PromptRow title="Top Prompts" prompts={rows.top} />
-          <PromptRow title="Most Used" prompts={rows.mostUsed} />
-          <PromptRow title="Most Helpful" prompts={rows.mostHelpful} />
-        </>
-      )}
+          <Link href={`/promptlibrary/search?category=${category.slug}`} className="text-link">
+            Search all prompts instead <ArrowRight className="icon-sm" aria-hidden="true" />
+          </Link>
+        </div>
+        <PromptGrid prompts={filtered} />
+      </section>
     </main>
   );
 }
-
-function PromptRow({ title, prompts }: { title: string; prompts: ReturnType<typeof publicSearch> }) {
-  return (
-    <section className="page-section" aria-labelledby={`${title.replace(/\s+/g, "-").toLowerCase()}-heading`}>
-      <div className="section-heading">
-        <h2 id={`${title.replace(/\s+/g, "-").toLowerCase()}-heading`}>{title}</h2>
-      </div>
-      <PromptGrid prompts={prompts} />
-    </section>
-  );
-}
-

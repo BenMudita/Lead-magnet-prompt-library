@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SessionForm } from "@/components/session-form";
 import { MuditaHeader } from "@/components/mudita-header";
+import { getPromptBySlug } from "@/lib/store";
 
 type Props = {
   searchParams: Promise<Record<string, string | undefined>>;
@@ -9,6 +10,8 @@ type Props = {
 export default async function SignupPage({ searchParams }: Props) {
   const params = await searchParams;
   const redirectTo = params.redirect ?? "/promptlibrary";
+  const promptSlug = redirectTo.match(/^\/promptlibrary\/p\/([^/?#]+)/)?.[1];
+  const unlockingPrompt = promptSlug ? getPromptBySlug(decodeURIComponent(promptSlug)) : undefined;
 
   return (
     <main>
@@ -16,11 +19,19 @@ export default async function SignupPage({ searchParams }: Props) {
       <section className="auth-page">
         <div>
           <p className="eyebrow">Free account</p>
-          <h1>Create your Mudita account</h1>
-          <p>Use free sample prompts now. Upgrade when you are ready for the full library.</p>
+          <h1>Create your free account</h1>
+          <p>Unlock 108 ready-to-use prompts and copy any prompt into ChatGPT or Claude. No payment required.</p>
+          {unlockingPrompt ? (
+            <div className="unlock-card">
+              <span>Unlocking</span>
+              <strong>{unlockingPrompt.title}</strong>
+              <p>{unlockingPrompt.plainEnglishExplanation}</p>
+            </div>
+          ) : null}
           <Link href="/promptlibrary/login" className="text-link">
-            Already have an account?
+            Already have an account? Sign in
           </Link>
+          <p className="reassurance-copy">One email. Instant access.</p>
         </div>
         <SessionForm mode="signup" redirectTo={redirectTo} />
       </section>
