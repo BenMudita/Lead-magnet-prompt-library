@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Library, Search } from "lucide-react";
 
@@ -6,10 +7,15 @@ export function MuditaHeader() {
     <header className="site-header">
       <Link href="/promptlibrary" className="brand-link" aria-label="Mudita Prompt Library home">
         <span className="brand-frame" aria-hidden="true">
-          <span className="brand-est">Est</span>
-          <span className="brand-name">Mudita</span>
-          <span className="brand-year">2020</span>
-          <span className="brand-rule" />
+          <Image
+            className="brand-wordmark"
+            src="/brand/mudita-wordmark-white.svg"
+            width={180}
+            height={66}
+            alt=""
+            priority
+            unoptimized
+          />
           <span className="brand-subtitle">Prompt Library</span>
         </span>
       </Link>

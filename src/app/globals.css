@@ -1,34 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --surface: #ffffff;
-  --surface-strong: #f0f4f2;
-  --ink: #151411;
-  --muted: #67625c;
-  --soft-muted: #9b958d;
-  --line: #dedbd4;
-  --line-strong: #bdb8ad;
-  --primary: #2cef9e;
+  color-scheme: dark;
+  --background: #151411;
+  --surface: #1c1b18;
+  --surface-strong: #232220;
+  --surface-inset: #100f0d;
+  --ink: #f4f4f2;
+  --muted: #b8b5af;
+  --soft-muted: #908d87;
+  --line: rgb(244 244 242 / 0.12);
+  --line-strong: rgb(244 244 242 / 0.22);
+  --primary: #2cf09f;
   --primary-ink: #151411;
-  --accent-yellow: #ffcc19;
-  --accent-green: #2cef9e;
+  --accent-yellow: #ffcc17;
+  --accent-green: #2cf09f;
   --accent-orange: #ff5a00;
-  --accent-purple: #c617ff;
-  --accent-blue: #2c6fed;
-  --accent-rose: #d41446;
-  --accent-amber: #ffcc19;
-  --accent-violet: #c617ff;
+  --accent-purple: #c618ff;
+  --accent-blue: #2cf09f;
+  --accent-rose: #c618ff;
+  --accent-amber: #ffcc17;
+  --accent-violet: #c618ff;
+  --accent-danger: #f5443a;
+  --paper: #e7e8e8;
+  --paper-bright: #f4f4f2;
   --black: #151411;
-  --shadow: 0 20px 45px rgb(21 20 17 / 0.08);
-  --shadow-strong: 0 28px 70px rgb(21 20 17 / 0.24);
+  --deep: #0c0b09;
+  --shadow: 0 18px 46px rgb(0 0 0 / 0.28);
+  --shadow-strong: 0 28px 70px rgb(0 0 0 / 0.42);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--ink);
-  --font-sans: var(--font-mukta);
-  --font-mono: var(--font-roboto-slab);
+  --font-sans: var(--font-prompt);
+  --font-mono: var(--font-zilla-slab);
 }
 
 * {
@@ -36,14 +42,18 @@
 }
 
 html {
+  max-width: 100%;
+  overflow-x: clip;
   background: var(--background);
 }
 
 body {
+  max-width: 100%;
+  overflow-x: clip;
   min-width: 320px;
   background: var(--background);
   color: var(--ink);
-  font-family: var(--font-mukta), Arial, Helvetica, sans-serif;
+  font-family: var(--font-prompt), Inter, Arial, Helvetica, sans-serif;
   font-size: 18px;
 }
 
@@ -82,9 +92,9 @@ main {
   width: min(1240px, calc(100% - 32px));
   margin: 14px auto 0;
   padding: 12px;
-  border: 1px solid rgb(255 255 255 / 0.1);
-  border-radius: 8px;
-  background: var(--black);
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--deep);
   box-shadow: var(--shadow-strong);
 }
 
@@ -107,37 +117,44 @@ main {
 
 .brand-link {
   min-width: 0;
-  color: white;
+  color: var(--paper-bright);
 }
 
 .brand-frame {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   align-items: center;
-  column-gap: 14px;
+  justify-items: center;
   min-width: 244px;
-  padding: 10px 16px 11px;
-  border: 3px solid rgb(255 255 255 / 0.92);
-  border-radius: 3px;
-  color: #fff;
+  width: min(280px, 100%);
+  padding: 8px 16px 10px;
+  border: 3px solid rgb(244 244 242 / 0.92);
+  border-radius: 0;
+  color: var(--paper-bright);
+}
+
+.brand-wordmark {
+  display: block;
+  width: min(180px, 100%);
+  height: auto;
 }
 
 .brand-est,
 .brand-year,
 .brand-subtitle {
-  font-family: var(--font-oswald), Arial, Helvetica, sans-serif;
+  font-family: var(--font-prompt), Arial, Helvetica, sans-serif;
   font-size: 0.52rem;
   font-weight: 700;
-  letter-spacing: 0.24em;
+  letter-spacing: 0.18em;
   line-height: 1;
   text-transform: uppercase;
 }
 
 .brand-name {
-  font-family: var(--font-oswald), Arial, Helvetica, sans-serif;
+  font-family: var(--font-prompt), Arial, Helvetica, sans-serif;
   font-size: clamp(1.7rem, 2.8vw, 2.16rem);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   line-height: 0.9;
   text-transform: uppercase;
 }
@@ -154,7 +171,7 @@ main {
 }
 
 .brand-subtitle {
-  margin-top: 6px;
+  margin-top: 5px;
   text-align: center;
 }
 
@@ -171,25 +188,28 @@ main {
 .chip,
 .mini-category {
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: 0;
   background: var(--surface);
   color: var(--ink);
 }
 
 .nav-link {
   gap: 8px;
+  min-width: 0;
   min-height: 42px;
   padding: 8px 13px;
-  border-color: rgb(255 255 255 / 0.18);
-  background: #1d1b18;
-  color: #f4f7f5;
-  font-size: 1rem;
+  border-color: var(--line-strong);
+  background: var(--surface);
+  color: var(--paper-bright);
+  font-size: 0.82rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .nav-strong {
-  border-color: var(--accent-yellow);
-  color: var(--accent-yellow);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .icon-xs {
@@ -272,10 +292,10 @@ main {
 .hero-proof span {
   padding: 8px 11px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--surface-strong);
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -286,7 +306,7 @@ main {
   gap: 6px;
   margin: 0 0 18px;
   color: var(--primary);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.9rem;
   font-weight: 800;
   letter-spacing: 0.22em;
@@ -307,7 +327,7 @@ main {
 .directory-card,
 .prompt-card {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
   box-shadow: var(--shadow);
 }
@@ -318,17 +338,17 @@ main {
   gap: 0;
   overflow: hidden;
   padding: 0;
-  border-color: #252827;
-  background: var(--black);
-  color: white;
-  box-shadow: 0 26px 60px rgb(13 15 14 / 0.14);
+  border-color: var(--line-strong);
+  background: var(--deep);
+  color: var(--paper-bright);
+  box-shadow: var(--shadow-strong);
 }
 
 .hero-panel > div,
 .admin-panel {
   padding: 28px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface-strong);
 }
 
@@ -346,7 +366,7 @@ main {
 .metric-number {
   display: block;
   color: var(--accent-yellow);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: clamp(2.2rem, 4vw, 3.15rem);
   font-weight: 900;
   line-height: 1;
@@ -415,10 +435,11 @@ main {
   gap: 12px;
   align-items: center;
   min-height: 58px;
+  overflow: hidden;
   padding: 7px 7px 7px 18px;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
-  background: white;
+  border-radius: 0;
+  background: var(--surface-inset);
 }
 
 .search-form.compact {
@@ -468,8 +489,8 @@ main {
 .feedback-panel textarea {
   width: 100%;
   border: 1px solid var(--line);
-  border-radius: 7px;
-  background: #fff;
+  border-radius: 0;
+  background: var(--surface-inset);
   color: var(--ink);
 }
 
@@ -480,6 +501,7 @@ main {
   padding: 12px 0;
   color: var(--ink);
   font-size: 1.05rem;
+  text-overflow: ellipsis;
 }
 
 .search-form button,
@@ -489,11 +511,13 @@ main {
   justify-content: center;
   gap: 8px;
   min-height: 42px;
-  border: 1px solid var(--black);
-  border-radius: 7px;
-  background: var(--black);
-  color: #fff;
+  border: 1px solid var(--primary);
+  border-radius: 0;
+  background: var(--primary);
+  color: var(--primary-ink);
   font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .search-form button {
@@ -514,19 +538,19 @@ main {
   min-height: 38px;
   padding: 7px 11px;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
+  border-radius: 0;
+  background: var(--surface);
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.84rem;
   font-weight: 850;
 }
 
 .quick-chip.active {
-  border-color: var(--ink);
-  background: var(--ink);
-  color: #fff;
-  box-shadow: inset 0 -3px 0 var(--primary);
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-ink);
+  box-shadow: none;
 }
 
 .quick-chip.clear {
@@ -600,10 +624,10 @@ main {
   padding: 50px 20px 22px;
   border: 1px solid var(--line);
   border-top: 5px solid var(--primary);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 18px 45px rgb(16 26 22 / 0.06);
+  box-shadow: var(--shadow);
   transition:
     border-color 160ms ease,
     box-shadow 160ms ease,
@@ -640,7 +664,7 @@ main {
 
 .tile-meta {
   margin-top: auto;
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.82rem;
   font-weight: 600;
 }
@@ -704,8 +728,8 @@ main {
 }
 
 .prompt-card.locked {
-  --primary: #7c3aed;
-  background: linear-gradient(180deg, #fff, #f8faf8);
+  --primary: var(--accent-purple);
+  background: var(--surface);
 }
 
 .directory-card {
@@ -749,13 +773,13 @@ main {
   gap: 3px;
   padding: 10px;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: 0;
   background: var(--surface-strong);
 }
 
 .directory-meta dt {
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.75rem;
   font-weight: 850;
   letter-spacing: 0.08em;
@@ -774,7 +798,7 @@ main {
 .trending-card:hover,
 .activity-card:hover {
   border-color: var(--line-strong);
-  box-shadow: 0 22px 50px rgb(16 26 22 / 0.12);
+  box-shadow: var(--shadow-strong);
 }
 
 .card-topline,
@@ -801,22 +825,22 @@ main {
   width: fit-content;
   padding: 5px 9px;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
+  border-radius: 0;
+  background: var(--surface-inset);
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.02em;
 }
 
 .tested-badge {
-  border-color: rgb(7 130 79 / 0.24);
+  border-color: rgb(44 240 159 / 0.36);
   color: var(--primary);
 }
 
 .locked-badge {
-  color: #d41446;
+  color: var(--accent-danger);
 }
 
 .card-title {
@@ -835,10 +859,10 @@ main {
 .tag-link,
 .tag-more {
   padding: 7px 9px;
-  border-radius: 6px;
+  border-radius: 0;
   background: var(--surface-strong);
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.86rem;
   font-weight: 500;
 }
@@ -846,7 +870,7 @@ main {
 .card-metrics {
   margin-top: auto;
   justify-content: space-between;
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 1rem;
 }
 
@@ -919,7 +943,7 @@ main {
   min-height: 250px;
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
   color: var(--ink);
   box-shadow: var(--shadow);
@@ -935,7 +959,7 @@ main {
 
 .trend-rank {
   color: var(--accent-orange);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 1.45rem;
   font-weight: 900;
 }
@@ -957,7 +981,7 @@ main {
 .activity-meta {
   margin-top: auto;
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.78rem;
   font-weight: 800;
 }
@@ -972,8 +996,8 @@ main {
 }
 
 .nav-link:hover {
-  border-color: rgb(255 255 255 / 0.34);
-  background: #1b1f1d;
+  border-color: var(--primary);
+  background: var(--surface-strong);
 }
 
 .action-note {
@@ -1051,7 +1075,7 @@ main {
 .chip {
   padding: 8px 11px;
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.86rem;
   font-weight: 800;
   letter-spacing: 0.02em;
@@ -1064,8 +1088,8 @@ button.chip {
 .chip-active,
 .sort-link.active,
 .secondary-action.selected {
-  border-color: rgb(7 130 79 / 0.34);
-  background: rgb(7 130 79 / 0.09);
+  border-color: rgb(44 240 159 / 0.36);
+  background: rgb(44 240 159 / 0.12);
   color: var(--primary);
 }
 
@@ -1079,7 +1103,7 @@ button.chip {
 .sort-link {
   padding: 8px 11px;
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.83rem;
   font-weight: 800;
 }
@@ -1104,7 +1128,7 @@ button.chip {
 
 .filter-label {
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.78rem;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -1126,15 +1150,15 @@ button.chip {
   min-width: 24px;
   min-height: 22px;
   padding: 0 6px;
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--surface-strong);
   color: var(--muted);
   font-size: 0.76rem;
 }
 
 .library-chip-row .quick-chip.active span {
-  background: rgb(255 255 255 / 0.16);
-  color: #fff;
+  background: rgb(21 20 17 / 0.16);
+  color: var(--primary-ink);
 }
 
 .library-sort-links {
@@ -1193,10 +1217,10 @@ button.chip {
 .detail-proof-row span {
   padding: 8px 10px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 0;
   background: var(--surface-strong);
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -1211,7 +1235,7 @@ button.chip {
 .value-preview-grid > div {
   padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
 }
 
@@ -1247,8 +1271,8 @@ button.chip {
 }
 
 .primary-action:hover {
-  background: #1b1f1d;
-  border-color: #1b1f1d;
+  background: #54f0ae;
+  border-color: #54f0ae;
 }
 
 .icon-only {
@@ -1263,10 +1287,10 @@ button.chip {
 
 .prompt-body {
   margin-top: 18px;
-  border: 1px solid #242827;
-  border-radius: 8px;
-  background: var(--black);
-  color: #f9fbfa;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--deep);
+  color: var(--paper-bright);
   box-shadow: var(--shadow);
 }
 
@@ -1274,7 +1298,7 @@ button.chip {
 .prompt-body p {
   margin: 0;
   white-space: pre-wrap;
-  font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.93rem;
   line-height: 1.7;
 }
@@ -1284,7 +1308,7 @@ button.chip {
 }
 
 .locked-body {
-  background: #ffffff;
+  background: var(--surface-inset);
   color: var(--ink);
 }
 
@@ -1301,7 +1325,7 @@ button.chip {
   margin: 18px;
   padding: 14px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface-strong);
 }
 
@@ -1312,7 +1336,7 @@ button.chip {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgb(21 20 17 / 0.42);
+  background: rgb(12 11 9 / 0.72);
   backdrop-filter: blur(7px);
 }
 
@@ -1322,8 +1346,8 @@ button.chip {
   overflow: auto;
   padding: 22px;
   border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
+  border-radius: 0;
+  background: var(--surface);
   box-shadow: var(--shadow-strong);
 }
 
@@ -1363,7 +1387,7 @@ button.chip {
   margin: 14px 0 0;
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface-strong);
   color: var(--ink);
   font-weight: 820;
@@ -1372,7 +1396,7 @@ button.chip {
 
 .signup-modal-note span {
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.76rem;
   font-weight: 900;
   letter-spacing: 0.1em;
@@ -1401,13 +1425,13 @@ button.chip {
   margin: 0;
   padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
 }
 
 .use-note.featured {
-  border-color: rgb(15 118 110 / 0.35);
-  background: rgb(15 118 110 / 0.06);
+  border-color: rgb(44 240 159 / 0.36);
+  background: rgb(44 240 159 / 0.1);
 }
 
 .use-note p {
@@ -1483,9 +1507,9 @@ button.chip {
   display: grid;
   gap: 14px;
   padding: 26px;
-  border-color: #242827;
-  background: var(--black);
-  color: white;
+  border-color: var(--line-strong);
+  background: var(--deep);
+  color: var(--paper-bright);
   box-shadow: var(--shadow-strong);
 }
 
@@ -1502,7 +1526,7 @@ button.chip {
 
 .price-card .text-link,
 .price-card .inline-status {
-  color: #eef4f1;
+  color: var(--paper-bright);
 }
 
 .price-kicker {
@@ -1526,7 +1550,7 @@ button.chip {
   align-items: start;
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
 }
 
@@ -1543,7 +1567,7 @@ button.chip {
   margin: 18px 0;
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
 }
 
@@ -1564,13 +1588,13 @@ button.chip {
   gap: 6px;
   padding: 12px;
   border: 1px solid rgb(212 20 70 / 0.24);
-  border-radius: 8px;
-  background: rgb(212 20 70 / 0.06);
+  border-radius: 0;
+  background: rgb(245 68 58 / 0.1);
 }
 
 .admin-import-errors p {
   margin: 0;
-  color: #9f1239;
+  color: var(--accent-danger);
   font-size: 0.9rem;
   font-weight: 720;
 }
@@ -1583,7 +1607,7 @@ button.chip {
   padding: 16px;
   border: 1px solid var(--line);
   border-left: 5px solid var(--primary);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
   box-shadow: var(--shadow);
 }
@@ -1592,7 +1616,7 @@ button.chip {
 .form-reassurance,
 .reassurance-copy {
   color: var(--muted);
-  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-family: var(--font-zilla-slab), Georgia, serif;
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -1653,7 +1677,7 @@ button.chip {
   gap: 6px;
   padding: 8px 10px;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: 0;
   background: var(--surface);
   color: var(--ink);
   font-weight: 740;
@@ -1671,7 +1695,7 @@ button.chip {
   align-items: center;
   padding: 14px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
 }
 
@@ -1685,7 +1709,7 @@ button.chip {
   gap: 14px;
   padding: 18px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 0;
   background: var(--surface);
 }
 
@@ -1710,8 +1734,8 @@ button.chip {
 
 .event-grid span {
   padding: 6px 8px;
-  border-radius: 6px;
-  background: #fff;
+  border-radius: 0;
+  background: var(--surface-strong);
   color: var(--muted);
   font-size: 0.82rem;
 }
@@ -1776,7 +1800,7 @@ button.chip {
     align-items: flex-start;
     flex-direction: column;
     top: 8px;
-    width: min(100% - 20px, 1240px);
+    width: calc(100% - 20px);
   }
 
   .brand-link,
@@ -1789,15 +1813,24 @@ button.chip {
   }
 
   .header-nav {
-    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     justify-content: stretch;
+    gap: 8px;
+    width: 100%;
   }
 
   .nav-link {
-    flex: 1 1 30%;
+    flex: none;
     justify-content: center;
     padding-inline: 8px;
-    font-size: 0.92rem;
+    overflow: hidden;
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+
+  .brand-name {
+    font-size: clamp(1.45rem, 10vw, 1.9rem);
   }
 
   .hero-copy h1,
@@ -1883,5 +1916,11 @@ button.chip {
   .card-metrics {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+@media (max-width: 420px) {
+  .header-nav {
+    grid-template-columns: 1fr;
   }
 }

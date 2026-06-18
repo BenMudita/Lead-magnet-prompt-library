@@ -1,23 +1,18 @@
 import type { Metadata } from "next";
-import { Mukta, Oswald, Roboto_Slab } from "next/font/google";
+import { Prompt, Zilla_Slab } from "next/font/google";
 import "./globals.css";
 
-const mukta = Mukta({
-  variable: "--font-mukta",
-  subsets: ["latin", "devanagari"],
-  weight: ["300", "400", "500", "600", "700", "800"],
+const prompt = Prompt({
+  variable: "--font-prompt",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
   display: "swap",
 });
 
-const robotoSlab = Roboto_Slab({
-  variable: "--font-roboto-slab",
+const zillaSlab = Zilla_Slab({
+  variable: "--font-zilla-slab",
   subsets: ["latin"],
-  display: "swap",
-});
-
-const oswald = Oswald({
-  variable: "--font-oswald",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -34,7 +29,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${mukta.variable} ${robotoSlab.variable} ${oswald.variable} h-full antialiased`}
+      className={`${prompt.variable} ${zillaSlab.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
