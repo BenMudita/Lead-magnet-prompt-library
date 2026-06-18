@@ -6,9 +6,12 @@ This app defaults to demo mode. Enable production services only when the matchin
 
 1. Create a Supabase project.
 2. Open the SQL editor and run `docs/production-schema.sql`.
-3. In the Supabase Auth settings, add these redirect URLs:
-   - `http://localhost:3000/auth/callback`
-   - `https://YOUR_PRODUCTION_DOMAIN/auth/callback`
+3. In Supabase Auth > URL Configuration:
+   - Set Site URL to `https://YOUR_PRODUCTION_DOMAIN`.
+   - Add `https://YOUR_PRODUCTION_DOMAIN/auth/callback` to Redirect URLs.
+   - Add `https://YOUR_PRODUCTION_DOMAIN/auth/confirm` to Redirect URLs.
+   - Add `http://localhost:3000/**` for local development.
+   - Add `https://**--YOUR_NETLIFY_SITE_NAME.netlify.app/**` if Netlify deploy previews need auth.
 4. Copy the project URL and keys into the deployment environment.
 
 For new Supabase projects, prefer publishable and secret keys:
@@ -23,6 +26,15 @@ NEXT_PUBLIC_APP_URL=https://YOUR_PRODUCTION_DOMAIN
 ```
 
 Legacy Supabase `anon` and `service_role` keys are still supported by the app for older projects.
+
+For the Magic Link email template, the default `{{ .ConfirmationURL }}` works with `/auth/callback`.
+If you switch to a token-hash template, keep the app-provided redirect by using:
+
+```html
+<a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=email">Sign in</a>
+```
+
+This app also supports `/auth/confirm` for templates that route token hashes to a separate endpoint.
 
 ## 2. Stripe
 
@@ -66,3 +78,5 @@ ENABLE_DEMO_CHECKOUT=true
 ## 4. Prompt admin
 
 After Supabase auth/database are enabled and the seed has run, sign in with a `muditastudios.com` admin email and open `/admin/prompts`. Admins can create single draft prompts or bulk import CSV/JSON prompt files; published imports appear in the public prompt library immediately.
+
+Email-gated signups are captured in `public.email_signups` as soon as a magic link is requested, then marked `confirmed` after the user completes the Supabase callback.

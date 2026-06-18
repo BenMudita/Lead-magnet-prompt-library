@@ -1,9 +1,15 @@
 import { NextResponse } from "next/server";
 import { parseJson } from "@/lib/api";
+import { recordEmailSignupRequest } from "@/lib/email-signups";
 import { absoluteAppUrl, isSupabaseAuthEnabled } from "@/lib/env";
 import { clearSession, getSession, setSession } from "@/lib/session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { recordAnalyticsEvent } from "@/lib/store";
+
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
+const isLikelyEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const safeInternalPath = (value?: string) =>
+  value?.startsWith("/") && !value.startsWith("//") ? value : "/promptlibrary";
 
 export async function GET() {
   return NextResponse.json(await getSession());
@@ -20,18 +26,37 @@ export async function POST(request: Request) {
   }
 
   const payload = await parseJson<{ email?: string; redirectTo?: string }>(request, {});
-  const email = payload.email ?? "member@muditastudios.com";
+  const email = normalizeEmail(payload.email ?? "member@muditastudios.com");
+
+  if (!isLikelyEmail(email)) {
+    return NextResponse.json({ message: "Enter a valid email address." }, { status: 400 });
+  }
 
   if (isSupabaseAuthEnabled()) {
-    const redirectTo = payload.redirectTo?.startsWith("/") ? payload.redirectTo : "/promptlibrary";
+    const redirectTo = safeInternalPath(payload.redirectTo);
     const callbackUrl = new URL("/auth/callback", absoluteAppUrl(request.url));
     callbackUrl.searchParams.set("redirectTo", redirectTo);
+
+    try {
+      await recordEmailSignupRequest({
+        email,
+        redirectTo,
+        source: "prompt_library_signup",
+      });
+    } catch (error) {
+      console.error("Failed to save email signup", error);
+      return NextResponse.json(
+        { message: "We could not save that email. Please try again." },
+        { status: 500 },
+      );
+    }
 
     const supabase = await createSupabaseServerClient();
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         emailRedirectTo: callbackUrl.toString(),
+        shouldCreateUser: true,
       },
     });
 

@@ -26,6 +26,23 @@ create table profiles (
   last_login_at timestamptz
 );
 
+create table email_signups (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique check (email = lower(email)),
+  status text not null default 'magic_link_requested',
+  source text not null default 'prompt_library',
+  redirect_to text,
+  user_id uuid references profiles(id) on delete set null,
+  request_count integer not null default 1 check (request_count >= 0),
+  last_requested_at timestamptz,
+  confirmed_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index email_signups_status_updated_idx
+  on email_signups (status, updated_at desc);
+
 create table plans (
   id text primary key,
   name text not null,
@@ -269,6 +286,7 @@ create trigger on_auth_user_created
 -- Row-level security defaults. Premium prompt body redaction happens in the
 -- Next.js server API, so do not expose prompts directly to anonymous clients.
 alter table profiles enable row level security;
+alter table email_signups enable row level security;
 alter table categories enable row level security;
 alter table tags enable row level security;
 alter table prompts enable row level security;
@@ -323,6 +341,7 @@ create policy "Members can manage their favorites"
 
 grant select on table public.lead_magnet_entries to anon, authenticated;
 grant all on table public.lead_magnet_entries to service_role;
+grant all on table public.email_signups to service_role;
 grant all on table public.categories to service_role;
 grant all on table public.tags to service_role;
 grant all on table public.prompts to service_role;
