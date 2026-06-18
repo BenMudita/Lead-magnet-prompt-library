@@ -12,6 +12,7 @@ export function SearchBar({
   helperText,
   compact = false,
   large = false,
+  destination = "/promptlibrary/search",
 }: {
   initialQuery?: string;
   categorySlug?: string;
@@ -20,6 +21,7 @@ export function SearchBar({
   helperText?: string;
   compact?: boolean;
   large?: boolean;
+  destination?: string;
 }) {
   const [query, setQuery] = useState(initialQuery);
   const router = useRouter();
@@ -29,7 +31,7 @@ export function SearchBar({
     const params = new URLSearchParams();
     if (query.trim()) params.set("q", query.trim());
     if (categorySlug) params.set("category", categorySlug);
-    router.push(`/promptlibrary/search?${params.toString()}`);
+    router.push(`${destination}?${params.toString()}`);
   }
 
   return (

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Flame, MessageSquare, Sparkles } from "lucide-react";
+import { ArrowRight, Flame, Library, MessageSquare, Sparkles } from "lucide-react";
 import { LibraryHero } from "@/components/library-hero";
 import { MuditaHeader } from "@/components/mudita-header";
 import { PromptGrid } from "@/components/prompt-grid";
@@ -12,11 +12,13 @@ import {
   homepageRoleSlugs,
   homepageTrending,
 } from "@/lib/library";
+import { listDirectoryEntries } from "@/lib/directory";
 import { getSession } from "@/lib/session";
 import { recordAnalyticsEvent } from "@/lib/store";
 
 export default async function PromptLibraryHome() {
   const session = await getSession();
+  const directoryEntries = (await listDirectoryEntries()).slice(0, 3);
   const stats = categoryStats();
   const roleStats = homepageRoleSlugs
     .map((slug) => stats.find((item) => item.category.slug === slug))
@@ -43,6 +45,47 @@ export default async function PromptLibraryHome() {
     <main>
       <MuditaHeader />
       <LibraryHero totalPrompts={totals.promptCount} testedPrompts={totals.testedCount} />
+
+      <section className="page-section" aria-labelledby="directory-preview-heading">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">
+              <Library className="icon-xs" aria-hidden="true" />
+              Lead magnet directory
+            </p>
+            <h2 id="directory-preview-heading">Backend-editable resources to start from.</h2>
+          </div>
+          <Link href="/promptlibrary/directory" className="text-link">
+            Open directory <ArrowRight className="icon-sm" aria-hidden="true" />
+          </Link>
+        </div>
+        <div className="directory-grid">
+          {directoryEntries.map((entry) => (
+            <article key={entry.id} className="directory-card">
+              <div className="card-topline">
+                <span className="category-pill">{entry.category}</span>
+                <span className="tested-badge">{entry.format}</span>
+              </div>
+              <h3>{entry.title}</h3>
+              <p>{entry.summary}</p>
+              <div className="tag-line">
+                {entry.tags.slice(0, 3).map((tag) => (
+                  <span key={tag} className="tag-link">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div className="card-metrics">
+                <span>{entry.copyCount} copies</span>
+                <span>{entry.helpfulPercent}% helpful</span>
+              </div>
+              <Link href={entry.ctaUrl} className="text-link">
+                {entry.ctaLabel} <ArrowRight className="icon-sm" aria-hidden="true" />
+              </Link>
+            </article>
+          ))}
+        </div>
+      </section>
 
       <section className="page-section" aria-labelledby="trending-heading">
         <div className="section-heading">

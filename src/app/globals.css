@@ -207,6 +207,7 @@ main {
 .search-band,
 .page-section,
 .category-hero,
+.directory-hero,
 .search-page-head,
 .pricing-hero,
 .auth-page,
@@ -303,6 +304,7 @@ main {
 .feedback-panel,
 .auth-form,
 .admin-create,
+.directory-card,
 .prompt-card {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -583,6 +585,7 @@ main {
 
 .category-tile:hover,
 .prompt-card:hover,
+.directory-card:hover,
 .trending-card:hover,
 .activity-card:hover {
   transform: translateY(-2px);
@@ -650,6 +653,12 @@ main {
   gap: 14px;
 }
 
+.directory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .prompt-card {
   position: relative;
   display: grid;
@@ -668,7 +677,68 @@ main {
   background: linear-gradient(180deg, #fff, #f8faf8);
 }
 
+.directory-card {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+  min-height: 420px;
+  padding: 20px;
+  color: var(--ink);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.directory-card h3 {
+  margin: 0;
+  font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.directory-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.directory-description {
+  font-size: 0.92rem;
+}
+
+.directory-meta {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.directory-meta div {
+  display: grid;
+  gap: 3px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface-strong);
+}
+
+.directory-meta dt {
+  color: var(--muted);
+  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.directory-meta dd {
+  margin: 0;
+  color: var(--ink);
+  font-weight: 800;
+}
+
 .prompt-card:hover,
+.directory-card:hover,
 .category-tile:hover,
 .trending-card:hover,
 .activity-card:hover {
@@ -900,8 +970,35 @@ main {
   padding: 66px 0 24px;
 }
 
-.category-hero {
+.category-hero,
+.directory-hero {
   border-bottom: 5px solid var(--primary);
+}
+
+.directory-hero {
+  max-width: 980px;
+}
+
+.directory-hero h1 {
+  max-width: 900px;
+  margin: 0;
+  font-size: clamp(2.8rem, 8vw, 6.4rem);
+  font-weight: 900;
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.directory-hero > p:not(.eyebrow) {
+  max-width: 760px;
+  color: var(--muted);
+  font-size: clamp(1.05rem, 2vw, 1.26rem);
+  line-height: 1.55;
+}
+
+.directory-filter-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .toolbar {
@@ -1417,6 +1514,7 @@ button.chip {
   }
 
   .prompt-grid,
+  .directory-grid,
   .category-grid,
   .trending-grid,
   .activity-grid,
@@ -1502,6 +1600,7 @@ button.chip {
   }
 
   .prompt-grid,
+  .directory-grid,
   .category-grid,
   .use-note-list,
   .trending-grid,

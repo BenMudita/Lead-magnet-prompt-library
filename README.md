@@ -5,8 +5,9 @@ A Next.js implementation of the Mudita Prompt Library PRD. The app is product-fi
 ## What is included
 
 - Product routes: `/promptlibrary`, category pages, global search, prompt detail, pricing, signup/login, account.
-- Admin routes: prompt list/edit, QA review queue, use-note moderation, analytics.
+- Admin routes: prompt list/edit, lead magnet entry list/edit, QA review queue, use-note moderation, analytics.
 - 108 seeded prompts across 9 categories, with 18 free samples and 27 Mudita-tested prompts.
+- Backend-editable lead magnet directory entries at `/promptlibrary/directory`.
 - Server-side entitlement redaction for premium prompt bodies.
 - Copy, send-to-ChatGPT, send-to-Claude fallback, share, vote, and use-note APIs.
 - Demo auth/payment through secure cookies so the full flow is testable without keys.
@@ -62,3 +63,16 @@ See `docs/production-schema.sql` for a Postgres/Supabase-oriented data model.
 The local app intentionally uses in-memory storage and cookie-based demo sessions so the entire PRD can be exercised without external dependencies. Before deployment, replace the demo store with the production database, replace demo checkout with Stripe Checkout/webhooks, and replace local AI stubs with provider-backed admin jobs.
 
 The ChatGPT and Claude buttons use the PRD fallback: copy prompt, open the model site, and instruct the user to paste. I did not find an official stable web prompt-prefill contract in primary provider docs, so this avoids relying on brittle URL behavior. See `docs/send-to-model-spike.md`.
+
+## Backend-editable directory entries
+
+The public directory lives at `/promptlibrary/directory`. Admins manage entries at `/admin/entries`.
+
+For Supabase-backed entries:
+
+1. In Supabase SQL Editor, run `docs/lead-magnet-entries-schema.sql`. For a brand-new database, `docs/production-schema.sql` also includes this table.
+2. Set `DATABASE_PROVIDER=supabase` plus `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SECRET_KEY` in Netlify/local env.
+3. Run `npm run db:seed` to upload the starter entries.
+4. Sign in with a `muditastudios.com` admin email, go to `/admin/entries`, then create, edit, publish, feature, or archive entries.
+
+Each entry controls its public card: title, summary, description, category, audience, outcome, format, tags, CTA label/URL, proof copy, copy count, helpful percent, publish status, featured/trending flags, and sort order.

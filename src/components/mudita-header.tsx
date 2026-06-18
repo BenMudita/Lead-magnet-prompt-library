@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Search, ShieldCheck, Sparkles } from "lucide-react";
+import { Library, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { getSession } from "@/lib/session";
 
 export async function MuditaHeader() {
@@ -18,6 +18,10 @@ export async function MuditaHeader() {
         </span>
       </Link>
       <nav className="header-nav" aria-label="Primary navigation">
+        <Link href="/promptlibrary/directory" className="nav-link">
+          <Library className="icon-sm" aria-hidden="true" />
+          Directory
+        </Link>
         <Link href="/promptlibrary/search" className="nav-link">
           <Search className="icon-sm" aria-hidden="true" />
           Search
