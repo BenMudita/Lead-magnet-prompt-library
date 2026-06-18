@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api";
-import { getCategoryBySlug, getPromptById, recordAnalyticsEvent, updatePrompt, upsertTag } from "@/lib/store";
+import { getCategoryBySlug, getPromptById, updatePrompt, upsertTag } from "@/lib/prompt-data";
+import { recordAnalyticsEvent } from "@/lib/store";
 import { slugify } from "@/lib/content";
 
 type Context = { params: Promise<{ id: string }> };
@@ -9,7 +10,7 @@ export async function POST(_request: Request, context: Context) {
   const { session, response } = await requireAdmin();
   if (response) return response;
   const { id } = await context.params;
-  const prompt = getPromptById(id, true);
+  const prompt = await getPromptById(id, true);
   if (!prompt) return NextResponse.json({ message: "Prompt not found." }, { status: 404 });
 
   const category = getCategoryBySlug(prompt.categorySlug);
@@ -24,8 +25,8 @@ export async function POST(_request: Request, context: Context) {
       "approved",
     ].map(slugify)),
   ).slice(0, 6);
-  suggested.forEach((tagSlug) => upsertTag(tagSlug.replace(/-/g, " "), "approved"));
-  const updated = updatePrompt(id, { tagSlugs: suggested });
+  await Promise.all(suggested.map((tagSlug) => upsertTag(tagSlug.replace(/-/g, " "), "approved")));
+  const updated = await updatePrompt(id, { tagSlugs: suggested });
   recordAnalyticsEvent({
     eventName: "prompt_ai_tags_generated",
     anonymousId: session.anonymousId,
@@ -41,4 +42,3 @@ export async function POST(_request: Request, context: Context) {
 
   return NextResponse.json({ message: "Local AI-tag stub generated reviewed tags.", prompt: updated });
 }
-

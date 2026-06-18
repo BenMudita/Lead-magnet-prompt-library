@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/api";
-import { recordAnalyticsEvent, updatePrompt } from "@/lib/store";
+import { updatePrompt } from "@/lib/prompt-data";
+import { recordAnalyticsEvent } from "@/lib/store";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -8,7 +9,7 @@ export async function POST(_request: Request, context: Context) {
   const { session, response } = await requireAdmin();
   if (response) return response;
   const { id } = await context.params;
-  const prompt = updatePrompt(id, {
+  const prompt = await updatePrompt(id, {
     isMuditaTested: true,
     testedAt: new Date().toISOString(),
     testedByType: "agent",
@@ -25,4 +26,3 @@ export async function POST(_request: Request, context: Context) {
   });
   return NextResponse.json({ message: "Prompt marked Mudita-tested.", prompt });
 }
-

@@ -6,7 +6,8 @@ import { MuditaHeader } from "@/components/mudita-header";
 import { PromptGrid } from "@/components/prompt-grid";
 import { SearchBar } from "@/components/search-bar";
 import { availableFilterTags, publicSearch } from "@/lib/library";
-import { getCategoryBySlug, recordAnalyticsEvent } from "@/lib/store";
+import { getCategoryBySlug } from "@/lib/prompt-data";
+import { recordAnalyticsEvent } from "@/lib/store";
 import { getSession } from "@/lib/session";
 
 type Props = {
@@ -26,8 +27,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const tab = (queryParams.tab as "all" | "trending" | "most-copied" | "highest-rated" | "new" | undefined) ?? "all";
   const sort =
     tab === "highest-rated" ? "helpful" : tab === "new" ? "newest" : tab === "trending" || tab === "most-copied" ? "used" : undefined;
-  const tags = availableFilterTags(category.slug);
-  const filtered = publicSearch({ categorySlug: category.slug, query: q, tagSlugs: activeTags, sort }, session);
+  const [tags, filtered] = await Promise.all([
+    availableFilterTags(category.slug),
+    publicSearch({ categorySlug: category.slug, query: q, tagSlugs: activeTags, sort }, session),
+  ]);
 
   recordAnalyticsEvent({
     eventName: q ? "category_search_submitted" : "category_tile_clicked",

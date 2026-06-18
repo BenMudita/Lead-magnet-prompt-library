@@ -51,9 +51,11 @@ export default async function PromptLibraryHome({ searchParams }: Props) {
   const category = params.category;
   const activeTags = params.tags?.split(",").filter(Boolean) ?? [];
   const sort = params.sort as "recommended" | "helpful" | "used" | "newest" | undefined;
-  const tags = availableFilterTags(category);
-  const categories = categoryStats();
-  const prompts = publicSearch({ query: q, categorySlug: category, tagSlugs: activeTags, sort }, session);
+  const [tags, categories, prompts] = await Promise.all([
+    availableFilterTags(category),
+    categoryStats(),
+    publicSearch({ query: q, categorySlug: category, tagSlugs: activeTags, sort }, session),
+  ]);
   const currentParams = {
     ...(q ? { q } : {}),
     ...(category ? { category } : {}),

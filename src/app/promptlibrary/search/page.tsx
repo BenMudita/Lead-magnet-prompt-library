@@ -21,10 +21,12 @@ export default async function SearchPage({ searchParams }: Props) {
   const activeTags = params.tags?.split(",").filter(Boolean) ?? [];
   const sort = params.sort as "recommended" | "helpful" | "used" | "newest" | undefined;
   const hasActiveSearch = Boolean(q || category || activeTags.length || sort);
-  const results = publicSearch({ query: q, categorySlug: category, tagSlugs: activeTags, sort }, session);
-  const defaultPicks = homepagePicks(session);
+  const [results, defaultPicks, tags] = await Promise.all([
+    publicSearch({ query: q, categorySlug: category, tagSlugs: activeTags, sort }, session),
+    homepagePicks(session),
+    availableFilterTags(category),
+  ]);
   const visibleResults = hasActiveSearch ? results : defaultPicks;
-  const tags = availableFilterTags(category);
 
   recordAnalyticsEvent({
     eventName: results.length ? "search_results_viewed" : "zero_results_viewed",

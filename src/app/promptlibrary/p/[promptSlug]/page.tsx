@@ -6,7 +6,8 @@ import { MuditaHeader } from "@/components/mudita-header";
 import { PromptActions } from "@/components/prompt-actions";
 import { PromptGrid } from "@/components/prompt-grid";
 import { getSession } from "@/lib/session";
-import { getPromptBySlug, incrementMetric, recordAnalyticsEvent } from "@/lib/store";
+import { getPromptBySlug, incrementMetric } from "@/lib/prompt-data";
+import { recordAnalyticsEvent } from "@/lib/store";
 import { promptUseNotes, promptValueGuide, relatedPrompts, toPublicPrompt, updatedLabel, voteCount } from "@/lib/library";
 
 type Props = {
@@ -16,10 +17,10 @@ type Props = {
 export default async function PromptDetailPage({ params }: Props) {
   const { promptSlug } = await params;
   const session = await getSession();
-  const prompt = getPromptBySlug(promptSlug);
+  const prompt = await getPromptBySlug(promptSlug);
   if (!prompt) notFound();
 
-  incrementMetric(prompt.id, "detailViewsCount");
+  await incrementMetric(prompt.id, "detailViewsCount");
   recordAnalyticsEvent({
     eventName: "prompt_detail_viewed",
     anonymousId: session.anonymousId,
@@ -27,10 +28,12 @@ export default async function PromptDetailPage({ params }: Props) {
     properties: { promptId: prompt.id, promptSlug: prompt.slug, accountStatus: session.accountStatus },
   });
 
-  const publicPrompt = toPublicPrompt(prompt, session);
+  const publicPrompt = await toPublicPrompt(prompt, session);
   const valueGuide = promptValueGuide(prompt);
-  const notes = promptUseNotes(prompt.id);
-  const related = relatedPrompts(prompt, session);
+  const [notes, related] = await Promise.all([
+    promptUseNotes(prompt.id),
+    relatedPrompts(prompt, session),
+  ]);
   const totalVotes = voteCount(publicPrompt.metric);
 
   return (

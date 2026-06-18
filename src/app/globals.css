@@ -1364,6 +1364,17 @@ button.chip {
   font-weight: 760;
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .field-label input,
 .field-label textarea,
 .field-label select,
@@ -1372,6 +1383,9 @@ button.chip {
 .admin-editor input,
 .admin-editor textarea,
 .admin-editor select,
+.admin-import input,
+.admin-import textarea,
+.admin-import select,
 .admin-create input,
 .admin-create textarea,
 .admin-create select {
@@ -1443,6 +1457,44 @@ button.chip {
   display: grid;
   gap: 14px;
   padding: 18px;
+}
+
+.admin-import {
+  display: grid;
+  gap: 14px;
+  margin: 18px 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.admin-import-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: start;
+}
+
+.admin-import-head h3 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.admin-import-errors {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid rgb(212 20 70 / 0.24);
+  border-radius: 8px;
+  background: rgb(212 20 70 / 0.06);
+}
+
+.admin-import-errors p {
+  margin: 0;
+  color: #9f1239;
+  font-size: 0.9rem;
+  font-weight: 720;
 }
 
 .unlock-card {

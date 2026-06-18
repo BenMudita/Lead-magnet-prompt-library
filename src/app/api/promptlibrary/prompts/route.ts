@@ -5,7 +5,7 @@ import { publicSearch } from "@/lib/library";
 export async function GET(request: Request) {
   const session = await getSession();
   const url = new URL(request.url);
-  const prompts = publicSearch(
+  const prompts = await publicSearch(
     {
       query: url.searchParams.get("q") ?? undefined,
       categorySlug: url.searchParams.get("category") ?? undefined,
@@ -16,4 +16,3 @@ export async function GET(request: Request) {
   );
   return NextResponse.json({ prompts });
 }
-

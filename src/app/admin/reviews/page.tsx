@@ -1,7 +1,7 @@
 import { SessionForm } from "@/components/session-form";
 import { isSupabaseAuthEnabled } from "@/lib/env";
 import { getSession, isAdminRole } from "@/lib/session";
-import { getPrompts, getTags } from "@/lib/store";
+import { getPrompts, getTags } from "@/lib/prompt-data";
 
 export default async function AdminReviewsPage() {
   const session = await getSession();
@@ -27,8 +27,9 @@ export default async function AdminReviewsPage() {
     );
   }
 
-  const prompts = getPrompts(true).filter((prompt) => prompt.status === "draft" || prompt.status === "in_review");
-  const suggestedTags = getTags(true).filter((tag) => tag.status === "suggested");
+  const [allPrompts, allTags] = await Promise.all([getPrompts(true), getTags(true)]);
+  const prompts = allPrompts.filter((prompt) => prompt.status === "draft" || prompt.status === "in_review");
+  const suggestedTags = allTags.filter((tag) => tag.status === "suggested");
 
   return (
     <section className="page-section">

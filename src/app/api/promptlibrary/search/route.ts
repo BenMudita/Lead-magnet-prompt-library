@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const session = await getSession();
   const url = new URL(request.url);
   const query = url.searchParams.get("q") ?? undefined;
-  const prompts = publicSearch(
+  const prompts = await publicSearch(
     {
       query,
       categorySlug: url.searchParams.get("category") ?? undefined,
@@ -26,4 +26,3 @@ export async function GET(request: Request) {
 
   return NextResponse.json({ prompts });
 }
-

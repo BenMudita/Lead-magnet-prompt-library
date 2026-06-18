@@ -2,7 +2,7 @@ import { AdminUseNoteList } from "@/components/admin-use-note-list";
 import { SessionForm } from "@/components/session-form";
 import { isSupabaseAuthEnabled } from "@/lib/env";
 import { getSession, isAdminRole } from "@/lib/session";
-import { getUseNotes } from "@/lib/store";
+import { getUseNotes } from "@/lib/prompt-data";
 
 export default async function AdminUseNotesPage() {
   const session = await getSession();
@@ -28,13 +28,14 @@ export default async function AdminUseNotesPage() {
     );
   }
 
-  const notes = getUseNotes().slice(0, 80);
+  const [allNotes, pendingNotes] = await Promise.all([getUseNotes(), getUseNotes("pending")]);
+  const notes = allNotes.slice(0, 80);
 
   return (
     <section className="page-section">
       <div className="section-heading">
         <div>
-          <p className="eyebrow">{getUseNotes("pending").length} pending</p>
+          <p className="eyebrow">{pendingNotes.length} pending</p>
           <h2>Use note moderation</h2>
         </div>
       </div>

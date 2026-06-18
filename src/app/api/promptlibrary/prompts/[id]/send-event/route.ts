@@ -2,14 +2,15 @@ import { NextResponse } from "next/server";
 import { parseJson } from "@/lib/api";
 import { canCopyPrompt } from "@/lib/library";
 import { getSession } from "@/lib/session";
-import { getPromptById, incrementMetric, recordAnalyticsEvent } from "@/lib/store";
+import { getPromptById, incrementMetric } from "@/lib/prompt-data";
+import { recordAnalyticsEvent } from "@/lib/store";
 
 type Context = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, context: Context) {
   const session = await getSession();
   const { id } = await context.params;
-  const prompt = getPromptById(id);
+  const prompt = await getPromptById(id);
   if (!prompt) return NextResponse.json({ message: "Prompt not found." }, { status: 404 });
   const payload = await parseJson<{ provider?: "chatgpt" | "claude" }>(request, {});
   const provider = payload.provider === "claude" ? "claude" : "chatgpt";
@@ -24,7 +25,7 @@ export async function POST(request: Request, context: Context) {
     );
   }
 
-  incrementMetric(id, provider === "claude" ? "sendClaudeCount" : "sendChatgptCount");
+  await incrementMetric(id, provider === "claude" ? "sendClaudeCount" : "sendChatgptCount");
   recordAnalyticsEvent({
     eventName: provider === "claude" ? "send_to_claude_clicked" : "send_to_chatgpt_clicked",
     anonymousId: session.anonymousId,
