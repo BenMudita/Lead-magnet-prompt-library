@@ -1,11 +1,7 @@
 import Link from "next/link";
-import { Library, Search, ShieldCheck, Sparkles } from "lucide-react";
-import { getSession } from "@/lib/session";
+import { Library, Search } from "lucide-react";
 
-export async function MuditaHeader() {
-  const session = await getSession();
-  const isGuest = session.accountStatus === "guest";
-
+export function MuditaHeader() {
   return (
     <header className="site-header">
       <Link href="/promptlibrary" className="brand-link" aria-label="Mudita Prompt Library home">
@@ -18,21 +14,13 @@ export async function MuditaHeader() {
         </span>
       </Link>
       <nav className="header-nav" aria-label="Primary navigation">
-        <Link href="/promptlibrary/directory" className="nav-link">
+        <Link href="/promptlibrary#prompt-library" className="nav-link nav-strong">
           <Library className="icon-sm" aria-hidden="true" />
-          Directory
+          Prompt library
         </Link>
-        <Link href="/promptlibrary/search" className="nav-link">
+        <Link href="/promptlibrary#library-search" className="nav-link">
           <Search className="icon-sm" aria-hidden="true" />
           Search
-        </Link>
-        <Link href={isGuest ? "/promptlibrary/signup" : "/account"} className="nav-link nav-strong">
-          {isGuest ? (
-            <Sparkles className="icon-sm" aria-hidden="true" />
-          ) : (
-            <ShieldCheck className="icon-sm" aria-hidden="true" />
-          )}
-          {isGuest ? "Join free" : "Account"}
         </Link>
       </nav>
     </header>

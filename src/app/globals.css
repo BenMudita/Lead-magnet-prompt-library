@@ -280,6 +280,36 @@ main {
   font-weight: 800;
 }
 
+.library-home-hero {
+  padding-block: clamp(22px, 3.5vw, 38px) 18px;
+}
+
+.library-home-hero .hero-copy h1 {
+  max-width: 720px;
+  font-size: clamp(2.35rem, 4.15vw, 3.85rem);
+  line-height: 1;
+}
+
+.library-home-hero .hero-copy p:not(.eyebrow) {
+  max-width: 790px;
+  margin-top: 16px;
+  font-size: clamp(1.02rem, 1.45vw, 1.2rem);
+  line-height: 1.5;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.library-search-band {
+  scroll-margin-top: 120px;
+  gap: 22px;
+  padding-block: 16px;
+}
+
 .eyebrow {
   display: flex;
   align-items: center;
@@ -539,6 +569,15 @@ main {
 
 .page-section.tight {
   padding: 26px 0 0;
+}
+
+.library-filter-section {
+  scroll-margin-top: 118px;
+  padding-bottom: 18px;
+}
+
+.library-results-section {
+  padding-top: 0;
 }
 
 .section-heading {
@@ -1053,6 +1092,63 @@ button.chip {
   font-weight: 800;
 }
 
+.library-filter-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px 24px;
+  align-items: start;
+  padding-block: 16px;
+  border-block: 1px solid var(--line);
+}
+
+.filter-group {
+  display: grid;
+  gap: 8px;
+}
+
+.filter-group-wide {
+  grid-column: 1 / -1;
+}
+
+.filter-label {
+  color: var(--muted);
+  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.library-chip-row {
+  margin-top: 0;
+}
+
+.library-chip-row .quick-chip {
+  gap: 7px;
+}
+
+.library-chip-row .quick-chip span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--surface-strong);
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.library-chip-row .quick-chip.active span {
+  background: rgb(255 255 255 / 0.16);
+  color: #fff;
+}
+
+.library-sort-links {
+  justify-content: flex-start;
+}
+
 .empty-state {
   grid-column: 1 / -1;
   padding: 24px;
@@ -1523,6 +1619,10 @@ button.chip {
   }
 
   .toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .library-filter-panel {
     grid-template-columns: 1fr;
   }
 

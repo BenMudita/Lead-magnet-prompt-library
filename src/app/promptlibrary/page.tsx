@@ -1,188 +1,189 @@
 import Link from "next/link";
-import { ArrowRight, Flame, Library, MessageSquare, Sparkles } from "lucide-react";
-import { LibraryHero } from "@/components/library-hero";
+import { ArrowRight } from "lucide-react";
+import { FilterChips } from "@/components/filter-chips";
 import { MuditaHeader } from "@/components/mudita-header";
 import { PromptGrid } from "@/components/prompt-grid";
-import { CategoryIcon } from "@/components/category-icon";
-import {
-  categoryStats,
-  communityActivity,
-  copiesThisWeek,
-  homepagePicks,
-  homepageRoleSlugs,
-  homepageTrending,
-} from "@/lib/library";
-import { listDirectoryEntries } from "@/lib/directory";
+import { SearchBar } from "@/components/search-bar";
+import { availableFilterTags, categoryStats, publicSearch } from "@/lib/library";
 import { getSession } from "@/lib/session";
 import { recordAnalyticsEvent } from "@/lib/store";
 
-export default async function PromptLibraryHome() {
+type Props = {
+  searchParams: Promise<Record<string, string | undefined>>;
+};
+
+const sortOptions = [
+  ["recommended", "Recommended"],
+  ["helpful", "Helpful"],
+  ["used", "Most used"],
+  ["newest", "Newest"],
+] as const;
+
+const libraryHref = (
+  current: {
+    q?: string;
+    category?: string;
+    tags?: string;
+    sort?: string;
+  },
+  next: {
+    q?: string;
+    category?: string;
+    tags?: string;
+    sort?: string;
+  },
+) => {
+  const params = new URLSearchParams();
+  const merged = { ...current, ...next };
+
+  Object.entries(merged).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+
+  const query = params.toString();
+  return `/promptlibrary${query ? `?${query}` : ""}#prompt-library`;
+};
+
+export default async function PromptLibraryHome({ searchParams }: Props) {
+  const params = await searchParams;
   const session = await getSession();
-  const directoryEntries = (await listDirectoryEntries()).slice(0, 3);
-  const stats = categoryStats();
-  const roleStats = homepageRoleSlugs
-    .map((slug) => stats.find((item) => item.category.slug === slug))
-    .filter((item): item is (typeof stats)[number] => Boolean(item));
-  const trending = homepageTrending(session);
-  const picks = homepagePicks(session);
-  const activity = communityActivity(session);
-  const totals = stats.reduce(
-    (memo, item) => ({
-      promptCount: memo.promptCount + item.promptCount,
-      testedCount: memo.testedCount + item.testedCount,
-    }),
-    { promptCount: 0, testedCount: 0 },
-  );
+  const q = params.q ?? "";
+  const category = params.category;
+  const activeTags = params.tags?.split(",").filter(Boolean) ?? [];
+  const sort = params.sort as "recommended" | "helpful" | "used" | "newest" | undefined;
+  const tags = availableFilterTags(category);
+  const categories = categoryStats();
+  const prompts = publicSearch({ query: q, categorySlug: category, tagSlugs: activeTags, sort }, session);
+  const currentParams = {
+    ...(q ? { q } : {}),
+    ...(category ? { category } : {}),
+    ...(activeTags.length ? { tags: activeTags.join(",") } : {}),
+    ...(sort ? { sort } : {}),
+  };
+  const activeSort = sort ?? "recommended";
+  const activeCategory = categories.find(({ category: item }) => item.slug === category)?.category;
 
   recordAnalyticsEvent({
-    eventName: "prompt_library_landing_viewed",
+    eventName: "prompt_library_viewed",
     anonymousId: session.anonymousId,
     userId: session.userId,
-    properties: { accountStatus: session.accountStatus },
+    properties: {
+      accountStatus: session.accountStatus,
+      query: q,
+      category,
+      tags: activeTags,
+      sort: activeSort,
+      resultCount: prompts.length,
+    },
   });
 
   return (
     <main>
       <MuditaHeader />
-      <LibraryHero totalPrompts={totals.promptCount} testedPrompts={totals.testedCount} />
-
-      <section className="page-section" aria-labelledby="directory-preview-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">
-              <Library className="icon-xs" aria-hidden="true" />
-              Lead magnet directory
-            </p>
-            <h2 id="directory-preview-heading">Backend-editable resources to start from.</h2>
+      <section className="product-hero library-home-hero">
+        <div className="hero-copy">
+          <p className="eyebrow">Mudita Prompt Library</p>
+          <h1>Pick a prompt and get straight to work.</h1>
+          <p>
+            Search, filter by industry or task, and open tested prompts you can copy into your AI tool. Some prompts ask for
+            your email before the full copy unlocks.
+          </p>
+          <div className="hero-actions">
+            <a href="#prompt-library" className="primary-action fit">
+              Go to prompt library
+              <ArrowRight className="icon-sm" aria-hidden="true" />
+            </a>
+            <Link href="/promptlibrary/signup" className="secondary-action fit">
+              Email access
+            </Link>
           </div>
-          <Link href="/promptlibrary/directory" className="text-link">
-            Open directory <ArrowRight className="icon-sm" aria-hidden="true" />
-          </Link>
         </div>
-        <div className="directory-grid">
-          {directoryEntries.map((entry) => (
-            <article key={entry.id} className="directory-card">
-              <div className="card-topline">
-                <span className="category-pill">{entry.category}</span>
-                <span className="tested-badge">{entry.format}</span>
-              </div>
-              <h3>{entry.title}</h3>
-              <p>{entry.summary}</p>
-              <div className="tag-line">
-                {entry.tags.slice(0, 3).map((tag) => (
-                  <span key={tag} className="tag-link">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              <div className="card-metrics">
-                <span>{entry.copyCount} copies</span>
-                <span>{entry.helpfulPercent}% helpful</span>
-              </div>
-              <Link href={entry.ctaUrl} className="text-link">
-                {entry.ctaLabel} <ArrowRight className="icon-sm" aria-hidden="true" />
+      </section>
+
+      <section className="search-band library-search-band" id="library-search" aria-label="Search prompt library">
+        <div>
+          <h2>Search if you know what you need</h2>
+          <p>Browsing by work area is the best starting point. Search is here when you have a phrase in mind.</p>
+        </div>
+        <SearchBar
+          initialQuery={q}
+          categorySlug={category}
+          label="Search prompts"
+          placeholder="Try email, hiring, budget, launch, onboarding..."
+          destination="/promptlibrary"
+          fragment="prompt-library"
+        />
+      </section>
+
+      <section className="page-section library-filter-section" id="prompt-library" aria-labelledby="library-heading">
+        <div className="section-heading library-results-heading">
+          <div>
+            <p className="eyebrow">{prompts.length} prompts</p>
+            <h2 id="library-heading">
+              {activeCategory ? `${activeCategory.name} prompts` : q ? `Results for "${q}"` : "All prompt library"}
+            </h2>
+          </div>
+          {Object.keys(currentParams).length ? (
+            <Link href="/promptlibrary#prompt-library" className="text-link">
+              Clear filters <ArrowRight className="icon-sm" aria-hidden="true" />
+            </Link>
+          ) : null}
+        </div>
+
+        <div className="library-filter-panel" aria-label="Library filters">
+          <div className="filter-group">
+            <span className="filter-label">Industries and functions</span>
+            <div className="quick-chip-row library-chip-row" aria-label="Industry and function filters">
+              <Link
+                href={libraryHref(currentParams, { category: undefined })}
+                className={category ? "quick-chip" : "quick-chip active"}
+              >
+                All
               </Link>
-            </article>
-          ))}
+              {categories.map(({ category: item, promptCount }) => (
+                <Link
+                  key={item.id}
+                  href={libraryHref(currentParams, { category: item.slug })}
+                  className={category === item.slug ? "quick-chip active" : "quick-chip"}
+                  aria-current={category === item.slug ? "true" : undefined}
+                >
+                  {item.name}
+                  <span>{promptCount}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-group">
+            <span className="filter-label">Sort</span>
+            <div className="sort-links library-sort-links" aria-label="Sort prompts">
+              {sortOptions.map(([option, label]) => (
+                <Link
+                  key={option}
+                  className={activeSort === option ? "sort-link active" : "sort-link"}
+                  href={libraryHref(currentParams, { sort: option === "recommended" ? undefined : option })}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="filter-group filter-group-wide">
+            <span className="filter-label">Task filters</span>
+            <FilterChips
+              tags={tags}
+              activeTags={activeTags}
+              basePath="/promptlibrary"
+              searchParams={{ q, category, sort }}
+              fragment="prompt-library"
+            />
+          </div>
         </div>
       </section>
 
-      <section className="page-section" aria-labelledby="trending-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow orange">
-              <Flame className="icon-xs" aria-hidden="true" />
-              Trending this week
-            </p>
-            <h2 id="trending-heading">Prompts people are copying right now.</h2>
-          </div>
-          <Link href="/promptlibrary/search?sort=used" className="text-link">
-            See all trending <ArrowRight className="icon-sm" aria-hidden="true" />
-          </Link>
-        </div>
-        <div className="trending-grid">
-          {trending.map((prompt, index) => (
-            <Link href={`/promptlibrary/p/${prompt.slug}`} className="trending-card" key={prompt.id}>
-              <span className="trend-rank">#{index + 1}</span>
-              <span className="category-pill">{prompt.category.name}</span>
-              <strong>{prompt.title}</strong>
-              <span>{prompt.plainEnglishExplanation}</span>
-              <span className="trend-proof">
-                +{copiesThisWeek(prompt.metric)} copies this week · {Math.round(prompt.helpfulRatio * 100)}% helpful
-              </span>
-              <span className="text-link">
-                View prompt <ArrowRight className="icon-sm" aria-hidden="true" />
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="page-section" aria-labelledby="category-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">Browse by role</p>
-            <h2 id="category-heading">Choose your function or team.</h2>
-          </div>
-          <Link href="/promptlibrary/search" className="text-link">
-            Browse all <ArrowRight className="icon-sm" aria-hidden="true" />
-          </Link>
-        </div>
-        <div className="category-grid">
-          {roleStats.map(({ category, promptCount, testedCount }) => (
-            <Link
-              href={`/promptlibrary/${category.slug}`}
-              className={`category-tile accent-${category.accent}`}
-              key={category.id}
-            >
-              <CategoryIcon name={category.icon} className="h-6 w-6" />
-              <span className="tile-title">{category.name}</span>
-              <span className="tile-copy">{category.description}</span>
-              <span className="tile-meta">
-                {promptCount} prompts · {testedCount} tested · free account to copy
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="page-section" aria-labelledby="picks-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">
-              <Sparkles className="icon-xs" aria-hidden="true" />
-              Mudita Picks
-            </p>
-            <h2 id="picks-heading">Prompts our team recommends starting with.</h2>
-          </div>
-          <Link href="/promptlibrary/search" className="text-link">
-            Explore the library <ArrowRight className="icon-sm" aria-hidden="true" />
-          </Link>
-        </div>
-        <PromptGrid prompts={picks} />
-      </section>
-
-      <section className="page-section" aria-labelledby="activity-heading">
-        <div className="section-heading">
-          <div>
-            <p className="eyebrow">
-              <MessageSquare className="icon-xs" aria-hidden="true" />
-              Community activity
-            </p>
-            <h2 id="activity-heading">See how people are using prompts in the real world.</h2>
-          </div>
-        </div>
-        <div className="activity-grid">
-          {activity.map(({ note, prompt }) => (
-            <Link href={`/promptlibrary/p/${prompt.slug}`} className="activity-card" key={note.id}>
-              <span className="category-pill">{prompt.category.name}</span>
-              <p>{note.body}</p>
-              <span className="activity-meta">
-                Recently · {prompt.metric.copyCount} copies · {Math.round(prompt.helpfulRatio * 100)}% helpful
-              </span>
-            </Link>
-          ))}
-        </div>
+      <section className="page-section library-results-section" aria-label="Prompt results">
+        <PromptGrid prompts={prompts} />
       </section>
     </main>
   );

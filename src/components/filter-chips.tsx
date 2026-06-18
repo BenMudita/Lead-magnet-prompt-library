@@ -13,11 +13,13 @@ export function FilterChips({
   activeTags,
   basePath,
   searchParams,
+  fragment,
 }: {
   tags: Tag[];
   activeTags: string[];
   basePath: string;
   searchParams?: Record<string, string | undefined>;
+  fragment?: string;
 }) {
   return (
     <div className="chip-row" aria-label="Tag filters">
@@ -34,7 +36,7 @@ export function FilterChips({
           <Link
             key={tag.id}
             className={activeTags.includes(tag.slug) ? "chip chip-active" : "chip"}
-            href={`${basePath}?${params.toString()}`}
+            href={`${basePath}${params.toString() ? `?${params.toString()}` : ""}${fragment ? `#${fragment}` : ""}`}
             onClick={() => {
               void fetch("/api/analytics/events", {
                 method: "POST",
