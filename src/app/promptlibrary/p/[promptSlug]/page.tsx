@@ -5,6 +5,7 @@ import { FeedbackPanel } from "@/components/feedback-panel";
 import { MuditaHeader } from "@/components/mudita-header";
 import { PromptActions } from "@/components/prompt-actions";
 import { PromptGrid } from "@/components/prompt-grid";
+import { SignupModalTrigger } from "@/components/signup-modal";
 import { getSession } from "@/lib/session";
 import { getPromptBySlug, incrementMetric } from "@/lib/prompt-data";
 import { recordAnalyticsEvent } from "@/lib/store";
@@ -97,7 +98,12 @@ export default async function PromptDetailPage({ params }: Props) {
             </ul>
           </div>
         </section>
-        <PromptActions promptId={publicPrompt.id} promptSlug={publicPrompt.slug} isLocked={publicPrompt.isLocked} />
+        <PromptActions
+          promptId={publicPrompt.id}
+          promptSlug={publicPrompt.slug}
+          isLocked={publicPrompt.isLocked}
+          promptTitle={publicPrompt.title}
+        />
         <section className={publicPrompt.isLocked ? "prompt-body locked-body" : "prompt-body"} aria-label="Prompt body">
           {publicPrompt.body ? (
             <pre>{publicPrompt.body}</pre>
@@ -107,12 +113,14 @@ export default async function PromptDetailPage({ params }: Props) {
               <div className="paywall-inline">
                 <LockKeyhole className="icon-sm" aria-hidden="true" />
                 <span>{publicPrompt.accessMessage}</span>
-                <Link
-                  href={`/promptlibrary/signup?redirect=${encodeURIComponent(`/promptlibrary/p/${publicPrompt.slug}`)}`}
+                <SignupModalTrigger
+                  redirectTo={`/promptlibrary/p/${publicPrompt.slug}`}
+                  promptTitle={publicPrompt.title}
                   className="primary-action fit"
+                  ariaLabel="Create free account to copy this prompt"
                 >
                   Create free account to copy this prompt
-                </Link>
+                </SignupModalTrigger>
               </div>
             </>
           )}

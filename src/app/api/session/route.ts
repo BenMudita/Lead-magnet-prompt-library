@@ -117,7 +117,15 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      return NextResponse.json({ message: error.message }, { status: 400 });
+      const isRateLimited = error.status === 429 || error.code?.includes("rate");
+      return NextResponse.json(
+        {
+          message: isRateLimited
+            ? "Too many email links were requested. Wait a few minutes, then try again."
+            : error.message,
+        },
+        { status: isRateLimited ? 429 : 400 },
+      );
     }
 
     try {

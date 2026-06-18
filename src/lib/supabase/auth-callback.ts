@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import type { EmailOtpType, User } from "@supabase/supabase-js";
+import type { EmailOtpType, SupabaseClient, User } from "@supabase/supabase-js";
 import { markEmailSignupConfirmed, updateEmailSignupCrmSync } from "@/lib/email-signups";
 import { absoluteAppUrl } from "@/lib/env";
 import { ensureSupabaseProfile } from "@/lib/supabase/profiles";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseRouteHandlerClient } from "@/lib/supabase/server";
 import { syncTwentyLead } from "@/lib/twenty";
 
 const emailOtpTypes = new Set(["signup", "invite", "magiclink", "recovery", "email", "email_change"]);
@@ -14,8 +14,7 @@ const safeInternalPath = (value: string | null) =>
 const isEmailOtpType = (value: string | null): value is EmailOtpType =>
   Boolean(value && emailOtpTypes.has(value));
 
-async function completeSupabaseAuth(requestUrl: URL) {
-  const supabase = await createSupabaseServerClient();
+async function completeSupabaseAuth(requestUrl: URL, supabase: SupabaseClient) {
   const code = requestUrl.searchParams.get("code");
 
   if (code) {
@@ -84,13 +83,15 @@ async function syncConfirmedUser(user: User | null) {
 export async function handleSupabaseAuthCallback(request: Request) {
   const requestUrl = new URL(request.url);
   const safeRedirect = safeInternalPath(requestUrl.searchParams.get("redirectTo"));
+  const response = NextResponse.redirect(new URL(safeRedirect, absoluteAppUrl(request.url)));
+  const supabase = await createSupabaseRouteHandlerClient(response);
 
   try {
-    const user = await completeSupabaseAuth(requestUrl);
+    const user = await completeSupabaseAuth(requestUrl, supabase);
     await syncConfirmedUser(user);
   } catch (error) {
     console.error("Supabase auth callback failed", error);
   }
 
-  return NextResponse.redirect(new URL(safeRedirect, absoluteAppUrl(request.url)));
+  return response;
 }

@@ -1313,6 +1313,92 @@ button.chip {
   background: var(--surface-strong);
 }
 
+.signup-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgb(21 20 17 / 0.42);
+  backdrop-filter: blur(7px);
+}
+
+.signup-modal {
+  width: min(100%, 440px);
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--shadow-strong);
+}
+
+.signup-modal-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.signup-modal .eyebrow {
+  margin-bottom: 8px;
+}
+
+.signup-modal h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.modal-close {
+  min-height: 40px;
+}
+
+.signup-modal-copy {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.signup-modal-note {
+  display: grid;
+  gap: 2px;
+  margin: 14px 0 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-strong);
+  color: var(--ink);
+  font-weight: 820;
+  line-height: 1.25;
+}
+
+.signup-modal-note span {
+  color: var(--muted);
+  font-family: var(--font-roboto-slab), Georgia, serif;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.signup-modal .auth-form {
+  margin-top: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.signup-modal .primary-action {
+  min-height: 48px;
+}
+
 .use-note-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1761,6 +1847,19 @@ button.chip {
   .admin-grid-two,
   .analytics-grid {
     grid-template-columns: 1fr;
+  }
+
+  .signup-modal-backdrop {
+    padding: 14px;
+  }
+
+  .signup-modal {
+    max-height: calc(100dvh - 28px);
+    padding: 18px;
+  }
+
+  .signup-modal h2 {
+    font-size: 1.55rem;
   }
 
   .quick-chip-row {

@@ -2,18 +2,22 @@
 
 import { useState } from "react";
 import { Clipboard, ExternalLink, Share2 } from "lucide-react";
+import { SignupModal } from "@/components/signup-modal";
 
 export function PromptActions({
   promptId,
   promptSlug,
   isLocked,
+  promptTitle,
 }: {
   promptId: string;
   promptSlug: string;
   isLocked: boolean;
+  promptTitle?: string;
 }) {
   const [message, setMessage] = useState("");
-  const signupHref = `/promptlibrary/signup?redirect=${encodeURIComponent(`/promptlibrary/p/${promptSlug}`)}`;
+  const [isSignupOpen, setIsSignupOpen] = useState(false);
+  const redirectTo = `/promptlibrary/p/${promptSlug}`;
 
   async function loadPromptBody(eventName: "copy" | "chatgpt" | "claude") {
     const response =
@@ -28,7 +32,7 @@ export function PromptActions({
     const payload = (await response.json()) as { body?: string; message?: string; redirectUrl?: string; url?: string };
     if (!response.ok || !payload.body) {
       if (payload.redirectUrl) {
-        window.location.href = payload.redirectUrl;
+        setIsSignupOpen(true);
         return undefined;
       }
       setMessage(payload.message ?? "This prompt is locked.");
@@ -39,7 +43,7 @@ export function PromptActions({
 
   async function copyPrompt() {
     if (isLocked) {
-      window.location.href = signupHref;
+      setIsSignupOpen(true);
       return;
     }
     const body = await loadPromptBody("copy");
@@ -54,7 +58,7 @@ export function PromptActions({
 
   async function sendTo(provider: "chatgpt" | "claude") {
     if (isLocked) {
-      window.location.href = signupHref;
+      setIsSignupOpen(true);
       return;
     }
     const body = await loadPromptBody(provider);
@@ -100,6 +104,7 @@ export function PromptActions({
       <p className="inline-status" aria-live="polite">
         {message}
       </p>
+      <SignupModal open={isSignupOpen} onClose={() => setIsSignupOpen(false)} redirectTo={redirectTo} promptTitle={promptTitle} />
     </div>
   );
 }
